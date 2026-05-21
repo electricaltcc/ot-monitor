@@ -369,19 +369,54 @@ function defaultData() {
   return {
     settings:{ quarter:'Q2 2026', startDate:'2026-04-01', endDate:'2026-06-30', limit:90, company:'T.C.C Limited', dept:'Electrical', reportPeriod:'OT Booked from 01-04-2026 to 20-05-2026' },
     employees:[
-      {id:'3112',name:'Ranjit S',        badge:'3112',dept:'Electrical',entries:[{id:uid(),date:'2026-04-22',hours:8, job:'Hrztnl cbl jnt and slt pmp cnt'}]},
-      {id:'3540',name:'Biju K.H',         badge:'3540',dept:'Electrical',entries:[{id:uid(),date:'2026-04-23',hours:4,job:'U2 TF terminal box inspection'},{id:uid(),date:'2026-04-20',hours:4,job:'Salt pmp cntn and S/D prp'},{id:uid(),date:'2026-04-21',hours:8,job:'Shutdown'}]},
-      {id:'3541',name:'Augustin Paul S.V',badge:'3541',dept:'Electrical',entries:[{id:uid(),date:'2026-04-21',hours:12,job:'Shutdown'}]},
-      {id:'3545',name:'Baiju M.A.',        badge:'3545',dept:'Electrical',entries:[{id:uid(),date:'2026-05-12',hours:4,job:'Breaker panel inspection at SS'}]},
-      {id:'3553',name:'Haris M.A',         badge:'3553',dept:'Electrical',entries:[{id:uid(),date:'2026-04-22',hours:8,job:'Hrztnl cbl jnt and slt pmp cnt'},{id:uid(),date:'2026-04-21',hours:8,job:'Shutdown'},{id:uid(),date:'2026-05-12',hours:1,job:'In place of Michael Baiju'},{id:uid(),date:'2026-04-03',hours:8,job:'Inplace of Ananthu'}]},
-      {id:'3554',name:'Michael Baiju',     badge:'3554',dept:'Electrical',entries:[{id:uid(),date:'2026-04-21',hours:8,job:'Shutdown'}]},
-      {id:'3597',name:'Dinesh S',          badge:'3597',dept:'Electrical',entries:[{id:uid(),date:'2026-04-22',hours:8,job:'Hrztnl cbl jnt and slt pmp cnt'}]},
-      {id:'3598',name:'Sumesh C V',        badge:'3598',dept:'Electrical',entries:[{id:uid(),date:'2026-04-23',hours:4,job:'U2 TF terminal box inspection'},{id:uid(),date:'2026-04-01',hours:8,job:'A3 HT cable joint work'},{id:uid(),date:'2026-04-20',hours:4,job:'Salt pmp cntn and S/D prp'},{id:uid(),date:'2026-04-21',hours:8,job:'Shutdown'},{id:uid(),date:'2026-04-18',hours:4,job:'JOC hotwell motor connection'},{id:uid(),date:'2026-04-02',hours:4,job:'UHDE2 polaraizer testing'},{id:uid(),date:'2026-05-12',hours:4,job:'Breaker panel inspection at SS'},{id:uid(),date:'2026-05-19',hours:4,job:'Salt pump connection'}]},
-      {id:'3599',name:'Eldhose Mathew',    badge:'3599',dept:'Electrical',entries:[{id:uid(),date:'2026-04-01',hours:8,job:'WTP DG operation'},{id:uid(),date:'2026-04-05',hours:8,job:'In place of 3600'}]},
-      {id:'3600',name:'Prathibhan V P',    badge:'3600',dept:'Electrical',entries:[{id:uid(),date:'2026-04-21',hours:12,job:'Shutdown'}]},
-      {id:'3667',name:'Anoop Kumar P K',   badge:'3667',dept:'Electrical',entries:[{id:uid(),date:'2026-04-20',hours:4,job:'Salt pmp cntn and S/D prp'},{id:uid(),date:'2026-04-21',hours:8,job:'Shutdown'},{id:uid(),date:'2026-04-10',hours:4,job:'Cold well pump 2 cable joining'},{id:uid(),date:'2026-04-23',hours:4,job:'U2 TF terminal box inspection'},{id:uid(),date:'2026-04-02',hours:4,job:'UHDE2 polaraizer testing'}]},
-      {id:'3669',name:'Arun B S',          badge:'3669',dept:'Electrical',entries:[{id:uid(),date:'2026-04-01',hours:8,job:'A3 HT cable joint work'},{id:uid(),date:'2026-04-20',hours:4,job:'Salt pmp cntn and S/D prp'},{id:uid(),date:'2026-04-21',hours:8,job:'Shutdown'},{id:uid(),date:'2026-04-10',hours:4,job:'Cold well pump 2 cable joining'},{id:uid(),date:'2026-04-02',hours:4,job:'WTP DG operation'},{id:uid(),date:'2026-05-19',hours:4,job:'Salt pump connection'}]},
-      {id:'3680',name:'Tony T.T',          badge:'3680',dept:'Electrical',entries:[{id:uid(),date:'2026-04-21',hours:8,job:'Shutdown'}]},
+      {id:'3112',name:'Ranjit S',         badge:'3112',dept:'Electrical',entries:[
+        {id:uid(),date:'2026-04-22',fromDate:'22/04/2026',fromTime:'16:00',toDate:'23/04/2026',toTime:'00:00',hours:8, job:'Hrztnl cbl jnt and slt pmp cnt'}]},
+      {id:'3540',name:'Biju K.H',          badge:'3540',dept:'Electrical',entries:[
+        {id:uid(),date:'2026-04-21',fromDate:'21/04/2026',fromTime:'08:00',toDate:'21/04/2026',toTime:'16:00',hours:8, job:'Shutdown'},
+        {id:uid(),date:'2026-04-20',fromDate:'20/04/2026',fromTime:'16:00',toDate:'20/04/2026',toTime:'20:00',hours:4, job:'Salt pmp cntn and S/D prp'},
+        {id:uid(),date:'2026-04-23',fromDate:'23/04/2026',fromTime:'16:00',toDate:'23/04/2026',toTime:'20:00',hours:4, job:'U2 TF terminal box inspection'}]},
+      {id:'3541',name:'Augustin Paul S.V', badge:'3541',dept:'Electrical',entries:[
+        {id:uid(),date:'2026-04-21',fromDate:'21/04/2026',fromTime:'08:00',toDate:'21/04/2026',toTime:'20:00',hours:12,job:'Shutdown'}]},
+      {id:'3545',name:'Baiju M.A.',         badge:'3545',dept:'Electrical',entries:[
+        {id:uid(),date:'2026-05-12',fromDate:'12/05/2026',fromTime:'16:00',toDate:'12/05/2026',toTime:'20:00',hours:4, job:'Breaker panel inspection at SS'}]},
+      {id:'3553',name:'Haris M.A',          badge:'3553',dept:'Electrical',entries:[
+        {id:uid(),date:'2026-04-21',fromDate:'21/04/2026',fromTime:'16:00',toDate:'22/04/2026',toTime:'00:00',hours:8, job:'Shutdown'},
+        {id:uid(),date:'2026-04-22',fromDate:'22/04/2026',fromTime:'16:00',toDate:'23/04/2026',toTime:'00:00',hours:8, job:'Hrztnl cbl jnt and slt pmp cnt'},
+        {id:uid(),date:'2026-04-03',fromDate:'03/04/2026',fromTime:'08:00',toDate:'03/04/2026',toTime:'16:00',hours:8, job:'Inplace of Ananthu'},
+        {id:uid(),date:'2026-05-12',fromDate:'12/05/2026',fromTime:'16:00',toDate:'12/05/2026',toTime:'17:00',hours:1, job:'In place of Michael Baiju'}]},
+      {id:'3554',name:'Michael Baiju',      badge:'3554',dept:'Electrical',entries:[
+        {id:uid(),date:'2026-04-21',fromDate:'21/04/2026',fromTime:'08:00',toDate:'21/04/2026',toTime:'16:00',hours:8, job:'Shutdown'}]},
+      {id:'3597',name:'Dinesh S',           badge:'3597',dept:'Electrical',entries:[
+        {id:uid(),date:'2026-04-22',fromDate:'22/04/2026',fromTime:'16:00',toDate:'23/04/2026',toTime:'00:00',hours:8, job:'Hrztnl cbl jnt and slt pmp cnt'}]},
+      {id:'3598',name:'Sumesh C V',         badge:'3598',dept:'Electrical',entries:[
+        {id:uid(),date:'2026-04-21',fromDate:'21/04/2026',fromTime:'16:00',toDate:'22/04/2026',toTime:'00:00',hours:8, job:'Shutdown'},
+        {id:uid(),date:'2026-04-18',fromDate:'18/04/2026',fromTime:'16:00',toDate:'18/04/2026',toTime:'20:00',hours:4, job:'JOC hotwell motor connection'},
+        {id:uid(),date:'2026-05-19',fromDate:'19/05/2026',fromTime:'20:00',toDate:'20/05/2026',toTime:'00:00',hours:4, job:'Salt pump connection'},
+        {id:uid(),date:'2026-04-23',fromDate:'23/04/2026',fromTime:'16:00',toDate:'23/04/2026',toTime:'20:00',hours:4, job:'U2 TF terminal box inspection'},
+        {id:uid(),date:'2026-04-02',fromDate:'02/04/2026',fromTime:'16:00',toDate:'02/04/2026',toTime:'20:00',hours:4, job:'UHDE2 polaraizer testing'},
+        {id:uid(),date:'2026-04-20',fromDate:'20/04/2026',fromTime:'16:00',toDate:'20/04/2026',toTime:'20:00',hours:4, job:'Salt pmp cntn and S/D prp'},
+        {id:uid(),date:'2026-04-01',fromDate:'01/04/2026',fromTime:'00:00',toDate:'01/04/2026',toTime:'08:00',hours:8, job:'A3 HT cable joint work'},
+        {id:uid(),date:'2026-05-12',fromDate:'12/05/2026',fromTime:'16:00',toDate:'12/05/2026',toTime:'20:00',hours:4, job:'Breaker panel inspection at SS'}]},
+      {id:'3599',name:'Eldhose Mathew',     badge:'3599',dept:'Electrical',entries:[
+        {id:uid(),date:'2026-04-01',fromDate:'01/04/2026',fromTime:'00:00',toDate:'01/04/2026',toTime:'08:00',hours:8, job:'WTP DG operation'},
+        {id:uid(),date:'2026-04-05',fromDate:'05/04/2026',fromTime:'08:00',toDate:'05/04/2026',toTime:'16:00',hours:8, job:'In place of 3600'}]},
+      {id:'3600',name:'Prathibhan V P',     badge:'3600',dept:'Electrical',entries:[
+        {id:uid(),date:'2026-04-21',fromDate:'21/04/2026',fromTime:'08:00',toDate:'21/04/2026',toTime:'20:00',hours:12,job:'Shutdown'}]},
+      {id:'3667',name:'Anoop Kumar P K',    badge:'3667',dept:'Electrical',entries:[
+        {id:uid(),date:'2026-04-20',fromDate:'20/04/2026',fromTime:'16:00',toDate:'20/04/2026',toTime:'20:00',hours:4, job:'Salt pmp cntn and S/D prp'},
+        {id:uid(),date:'2026-04-21',fromDate:'21/04/2026',fromTime:'08:00',toDate:'21/04/2026',toTime:'16:00',hours:8, job:'Shutdown'},
+        {id:uid(),date:'2026-04-10',fromDate:'10/04/2026',fromTime:'16:00',toDate:'10/04/2026',toTime:'20:00',hours:4, job:'Cold well pump 2 cable joining'},
+        {id:uid(),date:'2026-04-23',fromDate:'23/04/2026',fromTime:'16:00',toDate:'23/04/2026',toTime:'20:00',hours:4, job:'U2 TF terminal box inspection'},
+        {id:uid(),date:'2026-04-02',fromDate:'02/04/2026',fromTime:'16:00',toDate:'02/04/2026',toTime:'20:00',hours:4, job:'UHDE2 polaraizer testing'}]},
+      {id:'3669',name:'Arun B S',           badge:'3669',dept:'Electrical',entries:[
+        {id:uid(),date:'2026-04-01',fromDate:'01/04/2026',fromTime:'00:00',toDate:'01/04/2026',toTime:'08:00',hours:8, job:'A3 HT cable joint work'},
+        {id:uid(),date:'2026-04-20',fromDate:'20/04/2026',fromTime:'16:00',toDate:'20/04/2026',toTime:'20:00',hours:4, job:'Salt pmp cntn and S/D prp'},
+        {id:uid(),date:'2026-04-21',fromDate:'21/04/2026',fromTime:'16:00',toDate:'22/04/2026',toTime:'00:00',hours:8, job:'Shutdown'},
+        {id:uid(),date:'2026-04-10',fromDate:'10/04/2026',fromTime:'16:00',toDate:'10/04/2026',toTime:'20:00',hours:4, job:'Cold well pump 2 cable joining'},
+        {id:uid(),date:'2026-05-19',fromDate:'19/05/2026',fromTime:'20:00',toDate:'20/05/2026',toTime:'00:00',hours:4, job:'Salt pump connection'},
+        {id:uid(),date:'2026-04-02',fromDate:'02/04/2026',fromTime:'16:00',toDate:'02/04/2026',toTime:'20:00',hours:4, job:'WTP DG operation'}]},
+      {id:'3680',name:'Tony T.T',           badge:'3680',dept:'Electrical',entries:[
+        {id:uid(),date:'2026-04-21',fromDate:'21/04/2026',fromTime:'16:00',toDate:'22/04/2026',toTime:'00:00',hours:8, job:'Shutdown'}]},
     ],
     lastUpdated: today()
   };
@@ -634,6 +669,8 @@ function openHistory(empId) {
       '<tr>' +
       '<td style="color:var(--muted);font-size:12px">' + (i+1) + '</td>' +
       '<td style="white-space:nowrap;font-weight:600">' + fmtDate(x.date) + '</td>' +
+      '<td style="white-space:nowrap">' + (x.fromTime || '-') + '</td>' +
+      '<td style="white-space:nowrap">' + (x.toDate !== x.fromDate ? fmtDate(x.toDate ? x.toDate.split('/').reverse().join('-') : x.date) + ' ' : '') + (x.toTime || '-') + '</td>' +
       '<td>' + esc(x.job) + '</td>' +
       '<td style="text-align:right;font-weight:700;white-space:nowrap" class="' + clr + '">' + x.hours + ' hrs</td>' +
       '<td><button class="del-entry" onclick="askDeleteEntry(\'' + empId + '\',\'' + x.id + '\')" title="Delete">&#10005;</button></td>' +
@@ -673,13 +710,15 @@ function openHistory(empId) {
         '<thead><tr>' +
           '<th style="width:36px">#</th>' +
           '<th>Date</th>' +
+          '<th>From</th>' +
+          '<th>To</th>' +
           '<th>Job / Task Description</th>' +
           '<th style="text-align:right">Hours</th>' +
           '<th style="width:36px"></th>' +
         '</tr></thead>' +
         '<tbody>' + rows +
         '<tr style="border-top:2px solid var(--border);background:var(--bg)">' +
-          '<td colspan="3" style="font-weight:700;text-align:right;color:var(--muted)">TOTAL</td>' +
+          '<td colspan="5" style="font-weight:700;text-align:right;color:var(--muted)">TOTAL</td>' +
           '<td style="text-align:right;font-weight:800;font-size:15px" class="' + clr + '">' + hrs + ' hrs</td>' +
           '<td></td>' +
         '</tr>' +
@@ -926,7 +965,7 @@ function parsePDFText(text) {
   // Line starting with badge + name + department
   var empRx = /^(\d{3,5})\s+([A-Z][A-Z0-9 .'\/\-]+?)\s+(Electrical|Mechanical|Civil|Instrumentation|Electronics?|Chemical|Safety|Admin|HR)\s*(.*)/i;
   // Entry: optional job text, then date dd/mm/yyyy hh:mm date hh:mm hours
-  var entryRx = /^(.*?)(\d{2}\/\d{2}\/\d{4})\s+\d{2}:\d{2}\s+\d{2}\/\d{2}\/\d{4}\s+\d{2}:\d{2}\s+(\d+(?:\.\d+)?)/;
+  var entryRx = /^(.*?)(\d{2}\/\d{2}\/\d{4})\s+(\d{2}:\d{2})\s+(\d{2}\/\d{2}\/\d{4})\s+(\d{2}:\d{2})\s+(\d+(?:\.\d+)?)/;
 
   var employees = [];
   var badgeMap  = {};   // badge -> employee object, for cross-page merging
@@ -936,8 +975,8 @@ function parsePDFText(text) {
   function addEntry(lineText, target) {
     var m = lineText.match(entryRx);
     if (!m) return;
-    var dp = m[2].split('/');
-    target.entries.push({id: uid(), date: dp[2]+'-'+dp[1]+'-'+dp[0], hours: parseFloat(m[3]), job: m[1].trim() || '\u2014'});
+    var dp = m[2].split('/'); var dp2 = m[4].split('/');
+    target.entries.push({id: uid(), date: dp[2]+'-'+dp[1]+'-'+dp[0], fromDate: m[2], fromTime: m[3], toDate: m[4], toTime: m[5], hours: parseFloat(m[6]), job: m[1].trim() || '\u2014'});
   }
 
   function openEmployee(badge, name, dept, restOfLine) {
