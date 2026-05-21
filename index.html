@@ -367,7 +367,7 @@ function today() { return new Date().toLocaleDateString('en-GB',{day:'2-digit',m
 
 function defaultData() {
   return {
-    settings:{ quarter:'Q2 2026', startDate:'2026-04-01', endDate:'2026-06-30', limit:90, company:'T.C.C Limited', dept:'Electrical' },
+    settings:{ quarter:'Q2 2026', startDate:'2026-04-01', endDate:'2026-06-30', limit:90, company:'T.C.C Limited', dept:'Electrical', reportPeriod:'OT Booked from 01-04-2026 to 20-05-2026' },
     employees:[
       {id:'3112',name:'Ranjit S',        badge:'3112',dept:'Electrical',entries:[{id:uid(),date:'2026-04-22',hours:8, job:'Hrztnl cbl jnt and slt pmp cnt'}]},
       {id:'3540',name:'Biju K.H',         badge:'3540',dept:'Electrical',entries:[{id:uid(),date:'2026-04-23',hours:4,job:'U2 TF terminal box inspection'},{id:uid(),date:'2026-04-20',hours:4,job:'Salt pmp cntn and S/D prp'},{id:uid(),date:'2026-04-21',hours:8,job:'Shutdown'}]},
@@ -444,7 +444,7 @@ function renderAll() { renderQuarterBar(); renderMetrics(); renderTable(); }
 function renderQuarterBar() {
   const s = DB.settings;
   const fmt = d => new Date(d + 'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
-  document.getElementById('qb-title').textContent = s.quarter + ' \u2014 ' + fmt(s.startDate) + ' to ' + fmt(s.endDate);
+  document.getElementById('qb-title').textContent = s.reportPeriod || (s.quarter + ' \u2014 ' + fmt(s.startDate) + ' to ' + fmt(s.endDate));
   document.getElementById('qb-info').innerHTML = 'OT limit: <strong>' + s.limit + ' hours</strong> per employee &middot; Data updated: ' + DB.lastUpdated;
   document.title = 'OT Monitor \u2014 ' + s.company;
 }
@@ -484,7 +484,7 @@ function renderTable() {
     const hrs = empTotal(emp);
     const s   = getStatus(hrs, lim);
     const pct = Math.min(100, Math.round(hrs / lim * 100));
-    return '<div class="emp-row">' +
+    return '<div class="emp-row" ondblclick="openHistory(\'' + emp.id + '\')" title="Double-click to view OT details" style="cursor:pointer">' +
       '<div class="emp-num">' + (i+1) + '</div>' +
       '<div><div class="emp-name">' + esc(emp.name) + '</div><div class="emp-badge">Badge #' + esc(emp.badge) + ' &middot; ' + esc(emp.dept) + '</div></div>' +
       '<div><span class="pill ' + PC[s] + '">' + PT[s] + '</span></div>' +
@@ -612,17 +612,80 @@ function addOTEntry() {
 }
 
 function openHistory(empId) {
-  const emp = DB.employees.find(e => e.id === empId);
+  var emp = DB.employees.find(function(e) { return e.id === empId; });
   if (!emp) return;
-  document.getElementById('history-title').textContent = 'OT History \u2014 ' + emp.name + ' (' + empTotal(emp) + ' hrs total)';
-  const sorted = [...emp.entries].sort((a,b) => a.date.localeCompare(b.date));
-  document.getElementById('history-body').innerHTML = sorted.length === 0
-    ? '<p style="color:var(--muted);font-size:13px;padding:12px 0">No entries yet.</p>'
-    : '<table class="history-table"><thead><tr><th>Date</th><th>Job / Task</th><th>Hours</th><th></th></tr></thead><tbody>' +
-      sorted.map(x =>
-        '<tr><td>' + fmtDate(x.date) + '</td><td>' + esc(x.job) + '</td><td><strong>' + x.hours + ' hrs</strong></td>' +
-        '<td><button class="del-entry" onclick="askDeleteEntry(\'' + empId + '\',\'' + x.id + '\')" title="Delete">&#10005;</button></td></tr>'
-      ).join('') + '</tbody></table>';
+  var lim  = DB.settings.limit;
+  var hrs  = empTotal(emp);
+  var pct  = Math.min(100, Math.round(hrs / lim * 100));
+  var s    = getStatus(hrs, lim);
+  var TC   = {ok:'c-ok', warn:'c-warn', danger:'c-danger', over:'c-over'};
+  var FL   = {ok:'pf-ok', warn:'pf-warn', danger:'pf-danger', over:'pf-over'};
+  var PT   = {ok:'On track', warn:'Caution', danger:'High risk', over:'Exceeded limit'};
+  var PC   = {ok:'p-ok', warn:'p-warn', danger:'p-danger', over:'p-over'};
+  var clr  = TC[s];
+  var sorted = emp.entries.slice().sort(function(a,b){ return a.date.localeCompare(b.date); });
+
+  document.getElementById('history-title').textContent = emp.name + '  —  OT Details';
+
+  var rows = '';
+  for (var i = 0; i < sorted.length; i++) {
+    var x = sorted[i];
+    rows +=
+      '<tr>' +
+      '<td style="color:var(--muted);font-size:12px">' + (i+1) + '</td>' +
+      '<td style="white-space:nowrap;font-weight:600">' + fmtDate(x.date) + '</td>' +
+      '<td>' + esc(x.job) + '</td>' +
+      '<td style="text-align:right;font-weight:700;white-space:nowrap" class="' + clr + '">' + x.hours + ' hrs</td>' +
+      '<td><button class="del-entry" onclick="askDeleteEntry(\'' + empId + '\',\'' + x.id + '\')" title="Delete">&#10005;</button></td>' +
+      '</tr>';
+  }
+
+  var remaining = lim - hrs;
+  var remHTML = remaining > 0
+    ? '<strong>' + remaining + ' hrs</strong> <span style="color:var(--muted)">remaining</span>'
+    : '<strong class="c-over">Limit exceeded</strong>';
+
+  var summaryHTML =
+    '<div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:18px">' +
+      '<div style="display:flex;flex-wrap:wrap;gap:18px;align-items:center;margin-bottom:12px">' +
+        '<div>' +
+          '<div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Employee</div>' +
+          '<div style="font-weight:700;font-size:15px">' + esc(emp.name) + '</div>' +
+          '<div style="font-size:12px;color:var(--muted)">Badge #' + esc(emp.badge) + ' &nbsp;&middot;&nbsp; ' + esc(emp.dept) + '</div>' +
+        '</div>' +
+        '<div style="margin-left:auto;text-align:right">' +
+          '<div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Total OT</div>' +
+          '<div style="font-size:28px;font-weight:800;line-height:1" class="' + clr + '">' + hrs + ' <span style="font-size:14px;font-weight:500">hrs</span></div>' +
+          '<span class="pill ' + PC[s] + '" style="margin-top:4px;display:inline-block">' + PT[s] + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:18px;font-size:13px;margin-bottom:8px">' +
+        '<span><strong>' + sorted.length + '</strong> <span style="color:var(--muted)">entries</span></span>' +
+        '<span><strong>' + pct + '%</strong> <span style="color:var(--muted)">of ' + lim + ' hr limit used</span></span>' +
+        '<span>' + remHTML + '</span>' +
+      '</div>' +
+      '<div class="progress-track" style="height:10px"><div class="progress-fill ' + FL[s] + '" style="width:' + pct + '%"></div></div>' +
+    '</div>';
+
+  var tableHTML = sorted.length === 0
+    ? '<p style="color:var(--muted);font-size:13px;padding:12px 0">No OT entries recorded yet.</p>'
+    : '<table class="history-table">' +
+        '<thead><tr>' +
+          '<th style="width:36px">#</th>' +
+          '<th>Date</th>' +
+          '<th>Job / Task Description</th>' +
+          '<th style="text-align:right">Hours</th>' +
+          '<th style="width:36px"></th>' +
+        '</tr></thead>' +
+        '<tbody>' + rows +
+        '<tr style="border-top:2px solid var(--border);background:var(--bg)">' +
+          '<td colspan="3" style="font-weight:700;text-align:right;color:var(--muted)">TOTAL</td>' +
+          '<td style="text-align:right;font-weight:800;font-size:15px" class="' + clr + '">' + hrs + ' hrs</td>' +
+          '<td></td>' +
+        '</tr>' +
+        '</tbody></table>';
+
+  document.getElementById('history-body').innerHTML = summaryHTML + tableHTML;
   openModal('history-modal');
 }
 function askDeleteEntry(empId, entryId) {
@@ -1001,6 +1064,7 @@ function confirmPDFImport() {
 
   // 3. Update report start date if detected
   if (period && period.startDate) DB.settings.startDate = period.startDate;
+  if (period && period.label) DB.settings.reportPeriod = 'OT Booked from ' + period.label.replace(' – ', ' to ');
 
   dbSave(DB); renderAll(); closeModal('pdf-modal');
   _pendingPDF = null;
