@@ -2,11 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-<meta http-equiv="Pragma" content="no-cache" />
-<meta http-equiv="Expires" content="0" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>OT Monitor — T.C.C Limited [v5]</title>
+<title>OT Monitor — T.C.C Limited</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -67,12 +64,13 @@
 
   .table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow); }
   .tbl-head { display:grid; grid-template-columns:38px 1fr 110px 210px 80px 110px; gap:8px; padding:10px 16px; background:#f0ede7; border-bottom:1px solid var(--border); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
-  .emp-row  { display:grid; grid-template-columns:38px 1fr 110px 210px 80px 110px; gap:8px; padding:11px 16px; border-bottom:1px solid var(--border); align-items:center; transition:background .1s; }
+  .emp-row  { display:grid; grid-template-columns:38px 1fr 110px 210px 80px 110px; gap:8px; padding:11px 16px; border-bottom:1px solid var(--border); align-items:center; transition:background .1s; cursor:pointer; user-select:none; }
   .emp-row:last-child { border-bottom:none; }
-  .emp-row:hover { background:#faf9f6; }
+  .emp-row:hover { background:#f0ede7; }
   .emp-num   { font-size:12px; color:var(--muted); }
   .emp-name  { font-weight:600; font-size:13px; }
-  .emp-badge { font-size:11px; color:var(--muted); margin-top:1px; }
+  .emp-badge { font-size:11px; color:var(--accent); margin-top:1px; cursor:pointer; text-decoration:underline dotted; }
+  .emp-badge:hover { color:#163f70; }
   .progress-track { background:#e8e6e0; border-radius:99px; height:9px; overflow:hidden; }
   .progress-fill  { height:100%; border-radius:99px; transition:width .4s; }
   .pf-ok { background:var(--fill-ok); } .pf-warn { background:var(--fill-warn); } .pf-danger { background:var(--fill-danger); } .pf-over { background:var(--fill-over); }
@@ -91,7 +89,7 @@
   .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:200; align-items:center; justify-content:center; padding:16px; }
   .modal-bg.open { display:flex; }
   .modal { background:var(--surface); border-radius:var(--radius-lg); border:1px solid var(--border); padding:24px; width:100%; max-width:460px; max-height:92vh; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,.2); position:relative; }
-  .modal-wide { max-width:620px; }
+  .modal-wide { max-width:720px; }
   .modal-title { font-size:16px; font-weight:700; margin-bottom:18px; padding-right:28px; }
   .modal-close { position:absolute; top:16px; right:16px; background:none; border:none; font-size:22px; cursor:pointer; color:var(--muted); line-height:1; }
   .modal-close:hover { color:var(--text); }
@@ -116,10 +114,39 @@
   .del-entry { background:none; border:none; color:#ccc; cursor:pointer; font-size:14px; padding:0 4px; }
   .del-entry:hover { color:var(--danger); }
 
+  /* BADGE DETAIL CARD */
+  .badge-detail-header { display:flex; align-items:center; gap:16px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border); }
+  .badge-avatar { width:52px; height:52px; border-radius:50%; background:var(--accent); color:#fff; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700; flex-shrink:0; }
+  .badge-detail-name { font-size:18px; font-weight:700; }
+  .badge-detail-meta { font-size:12px; color:var(--muted); margin-top:3px; }
+  .badge-stat-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px; }
+  .badge-stat { background:#f4f3ef; border-radius:var(--radius); padding:12px 14px; }
+  .badge-stat-label { font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:4px; }
+  .badge-stat-val { font-size:22px; font-weight:700; }
+  .badge-progress-wrap { margin-bottom:18px; }
+  .badge-progress-label { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:6px; }
+  .badge-progress-bar { background:#e8e6e0; border-radius:99px; height:12px; overflow:hidden; }
+  .badge-progress-fill { height:100%; border-radius:99px; transition:width .5s; }
+  .badge-entries-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:8px; }
+  .badge-entry-card { background:#faf9f6; border:1px solid var(--border); border-radius:var(--radius); padding:10px 14px; margin-bottom:8px; display:grid; grid-template-columns:1fr auto; gap:8px; align-items:start; }
+  .badge-entry-card:last-child { margin-bottom:0; }
+  .badge-entry-date { font-size:12px; font-weight:600; color:var(--accent); }
+  .badge-entry-job { font-size:13px; margin-top:2px; }
+  .badge-entry-time { font-size:11px; color:var(--muted); margin-top:3px; }
+  .badge-entry-hrs { font-size:16px; font-weight:700; text-align:right; white-space:nowrap; }
+  .badge-entry-hrs-label { font-size:10px; color:var(--muted); text-align:right; }
+  .badge-no-entries { text-align:center; padding:24px; color:var(--muted); font-size:13px; }
+
+  /* TIME FIELDS IN ADD OT MODAL */
+  .row3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+  .time-hint { font-size:11px; color:var(--muted); margin-top:4px; }
+
   /* EMAIL */
-  .email-box { background:#faf9f6; border:1px solid var(--border); border-radius:var(--radius); padding:16px; font-size:12px; font-family:'Courier New',monospace; white-space:pre-wrap; color:var(--text); max-height:360px; overflow-y:auto; line-height:1.6; }
-  .copy-row  { display:flex; gap:8px; margin-top:10px; align-items:center; }
+  .email-box { background:#faf9f6; border:1px solid var(--border); border-radius:var(--radius); padding:16px; font-size:12px; font-family:'Courier New',monospace; white-space:pre-wrap; color:var(--text); max-height:300px; overflow-y:auto; line-height:1.6; }
+  .copy-row  { display:flex; gap:8px; margin-top:10px; align-items:center; flex-wrap:wrap; }
   .copy-ok   { font-size:12px; color:var(--ok); display:none; }
+  .btn-green { background:#2e6b14; color:#fff; border-color:#2e6b14; }
+  .btn-green:hover { background:#225010; }
 
   /* PDF PREVIEW */
   .pdf-info-bar { background:#fffbe8; border:1px solid #e8d060; border-radius:var(--radius); padding:10px 14px; margin-bottom:14px; font-size:13px; color:#6b5200; }
@@ -270,6 +297,18 @@
       <div class="field"><label>Date</label><input type="date" id="ot-date" /></div>
       <div class="field"><label>Hours</label><input type="number" id="ot-hours" min="0.5" max="24" step="0.5" value="8" /></div>
     </div>
+    <div class="row2">
+      <div class="field">
+        <label>OT From (time)</label>
+        <input type="time" id="ot-from" />
+        <div class="time-hint">Start time of OT</div>
+      </div>
+      <div class="field">
+        <label>OT To (time)</label>
+        <input type="time" id="ot-to" />
+        <div class="time-hint">End time of OT</div>
+      </div>
+    </div>
     <div class="field"><label>Job / Task Description</label><input type="text" id="ot-job" placeholder="e.g. Shutdown" /></div>
     <div class="modal-footer">
       <button class="btn btn-primary" onclick="addOTEntry()">Add Hours</button>
@@ -301,9 +340,9 @@
     <div class="field">
       <label>Include employees above (% of limit)</label>
       <select id="email-threshold">
-        <option value="60">60% and above — recommended (54+ hrs)</option>
-        <option value="80">80% and above — high risk only (72+ hrs)</option>
-        <option value="100">Exceeded limit only (90+ hrs)</option>
+        <option value="60">60% and above — recommended</option>
+        <option value="80">80% and above — high risk only</option>
+        <option value="100">Exceeded limit only</option>
         <option value="0">All employees</option>
       </select>
     </div>
@@ -312,6 +351,7 @@
       <div class="email-box" id="email-text"></div>
       <div class="copy-row">
         <button class="btn btn-primary" onclick="copyEmail()">&#128203; Copy to clipboard</button>
+        <button class="btn btn-green"   onclick="sendEmail()">&#9993; Send via Email App</button>
         <span class="copy-ok" id="copy-ok">&#10003; Copied!</span>
       </div>
     </div>
@@ -344,6 +384,18 @@
   </div>
 </div>
 
+<!-- ═══ BADGE DETAIL ═══ -->
+<div class="modal-bg" id="badge-detail-modal">
+  <div class="modal modal-wide">
+    <button class="modal-close" onclick="closeModal('badge-detail-modal')">&times;</button>
+    <div id="badge-detail-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="badge-add-hrs-btn">&#43; Add OT Hours</button>
+      <button class="btn" onclick="closeModal('badge-detail-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ PDF UPLOAD PREVIEW ═══ -->
 <div class="modal-bg" id="pdf-modal">
   <div class="modal modal-wide">
@@ -360,91 +412,43 @@
 'use strict';
 
 // ── DATA ─────────────────────────────────────────────────────────────────────────
-const STORAGE_KEY = 'ot_monitor_v4';
+const STORAGE_KEY = 'ot_monitor_v2';
 
 function uid() { return Math.random().toString(36).slice(2,10); }
 function today() { return new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); }
 
 function defaultData() {
   return {
-    settings:{ quarter:'Q2 2026', startDate:'2026-04-01', endDate:'2026-06-30', limit:90, company:'T.C.C Limited', dept:'Electrical', reportPeriod:'OT Booked from 01-04-2026 to 20-05-2026' },
+    settings:{ quarter:'Q2 2026', startDate:'2026-04-01', endDate:'2026-06-30', limit:90, company:'T.C.C Limited', dept:'Electrical' },
     employees:[
-      {id:'3112',name:'Ranjit S',         badge:'3112',dept:'Electrical',entries:[
-        {id:uid(),date:'2026-04-22',fromDate:'22/04/2026',fromTime:'16:00',toDate:'23/04/2026',toTime:'00:00',hours:8, job:'Hrztnl cbl jnt and slt pmp cnt'}]},
-      {id:'3540',name:'Biju K.H',          badge:'3540',dept:'Electrical',entries:[
-        {id:uid(),date:'2026-04-21',fromDate:'21/04/2026',fromTime:'08:00',toDate:'21/04/2026',toTime:'16:00',hours:8, job:'Shutdown'},
-        {id:uid(),date:'2026-04-20',fromDate:'20/04/2026',fromTime:'16:00',toDate:'20/04/2026',toTime:'20:00',hours:4, job:'Salt pmp cntn and S/D prp'},
-        {id:uid(),date:'2026-04-23',fromDate:'23/04/2026',fromTime:'16:00',toDate:'23/04/2026',toTime:'20:00',hours:4, job:'U2 TF terminal box inspection'}]},
-      {id:'3541',name:'Augustin Paul S.V', badge:'3541',dept:'Electrical',entries:[
-        {id:uid(),date:'2026-04-21',fromDate:'21/04/2026',fromTime:'08:00',toDate:'21/04/2026',toTime:'20:00',hours:12,job:'Shutdown'}]},
-      {id:'3545',name:'Baiju M.A.',         badge:'3545',dept:'Electrical',entries:[
-        {id:uid(),date:'2026-05-12',fromDate:'12/05/2026',fromTime:'16:00',toDate:'12/05/2026',toTime:'20:00',hours:4, job:'Breaker panel inspection at SS'}]},
-      {id:'3553',name:'Haris M.A',          badge:'3553',dept:'Electrical',entries:[
-        {id:uid(),date:'2026-04-21',fromDate:'21/04/2026',fromTime:'16:00',toDate:'22/04/2026',toTime:'00:00',hours:8, job:'Shutdown'},
-        {id:uid(),date:'2026-04-22',fromDate:'22/04/2026',fromTime:'16:00',toDate:'23/04/2026',toTime:'00:00',hours:8, job:'Hrztnl cbl jnt and slt pmp cnt'},
-        {id:uid(),date:'2026-04-03',fromDate:'03/04/2026',fromTime:'08:00',toDate:'03/04/2026',toTime:'16:00',hours:8, job:'Inplace of Ananthu'},
-        {id:uid(),date:'2026-05-12',fromDate:'12/05/2026',fromTime:'16:00',toDate:'12/05/2026',toTime:'17:00',hours:1, job:'In place of Michael Baiju'}]},
-      {id:'3554',name:'Michael Baiju',      badge:'3554',dept:'Electrical',entries:[
-        {id:uid(),date:'2026-04-21',fromDate:'21/04/2026',fromTime:'08:00',toDate:'21/04/2026',toTime:'16:00',hours:8, job:'Shutdown'}]},
-      {id:'3597',name:'Dinesh S',           badge:'3597',dept:'Electrical',entries:[
-        {id:uid(),date:'2026-04-22',fromDate:'22/04/2026',fromTime:'16:00',toDate:'23/04/2026',toTime:'00:00',hours:8, job:'Hrztnl cbl jnt and slt pmp cnt'}]},
-      {id:'3598',name:'Sumesh C V',         badge:'3598',dept:'Electrical',entries:[
-        {id:uid(),date:'2026-04-21',fromDate:'21/04/2026',fromTime:'16:00',toDate:'22/04/2026',toTime:'00:00',hours:8, job:'Shutdown'},
-        {id:uid(),date:'2026-04-18',fromDate:'18/04/2026',fromTime:'16:00',toDate:'18/04/2026',toTime:'20:00',hours:4, job:'JOC hotwell motor connection'},
-        {id:uid(),date:'2026-05-19',fromDate:'19/05/2026',fromTime:'20:00',toDate:'20/05/2026',toTime:'00:00',hours:4, job:'Salt pump connection'},
-        {id:uid(),date:'2026-04-23',fromDate:'23/04/2026',fromTime:'16:00',toDate:'23/04/2026',toTime:'20:00',hours:4, job:'U2 TF terminal box inspection'},
-        {id:uid(),date:'2026-04-02',fromDate:'02/04/2026',fromTime:'16:00',toDate:'02/04/2026',toTime:'20:00',hours:4, job:'UHDE2 polaraizer testing'},
-        {id:uid(),date:'2026-04-20',fromDate:'20/04/2026',fromTime:'16:00',toDate:'20/04/2026',toTime:'20:00',hours:4, job:'Salt pmp cntn and S/D prp'},
-        {id:uid(),date:'2026-04-01',fromDate:'01/04/2026',fromTime:'00:00',toDate:'01/04/2026',toTime:'08:00',hours:8, job:'A3 HT cable joint work'},
-        {id:uid(),date:'2026-05-12',fromDate:'12/05/2026',fromTime:'16:00',toDate:'12/05/2026',toTime:'20:00',hours:4, job:'Breaker panel inspection at SS'}]},
-      {id:'3599',name:'Eldhose Mathew',     badge:'3599',dept:'Electrical',entries:[
-        {id:uid(),date:'2026-04-01',fromDate:'01/04/2026',fromTime:'00:00',toDate:'01/04/2026',toTime:'08:00',hours:8, job:'WTP DG operation'},
-        {id:uid(),date:'2026-04-05',fromDate:'05/04/2026',fromTime:'08:00',toDate:'05/04/2026',toTime:'16:00',hours:8, job:'In place of 3600'}]},
-      {id:'3600',name:'Prathibhan V P',     badge:'3600',dept:'Electrical',entries:[
-        {id:uid(),date:'2026-04-21',fromDate:'21/04/2026',fromTime:'08:00',toDate:'21/04/2026',toTime:'20:00',hours:12,job:'Shutdown'}]},
-      {id:'3667',name:'Anoop Kumar P K',    badge:'3667',dept:'Electrical',entries:[
-        {id:uid(),date:'2026-04-20',fromDate:'20/04/2026',fromTime:'16:00',toDate:'20/04/2026',toTime:'20:00',hours:4, job:'Salt pmp cntn and S/D prp'},
-        {id:uid(),date:'2026-04-21',fromDate:'21/04/2026',fromTime:'08:00',toDate:'21/04/2026',toTime:'16:00',hours:8, job:'Shutdown'},
-        {id:uid(),date:'2026-04-10',fromDate:'10/04/2026',fromTime:'16:00',toDate:'10/04/2026',toTime:'20:00',hours:4, job:'Cold well pump 2 cable joining'},
-        {id:uid(),date:'2026-04-23',fromDate:'23/04/2026',fromTime:'16:00',toDate:'23/04/2026',toTime:'20:00',hours:4, job:'U2 TF terminal box inspection'},
-        {id:uid(),date:'2026-04-02',fromDate:'02/04/2026',fromTime:'16:00',toDate:'02/04/2026',toTime:'20:00',hours:4, job:'UHDE2 polaraizer testing'}]},
-      {id:'3669',name:'Arun B S',           badge:'3669',dept:'Electrical',entries:[
-        {id:uid(),date:'2026-04-01',fromDate:'01/04/2026',fromTime:'00:00',toDate:'01/04/2026',toTime:'08:00',hours:8, job:'A3 HT cable joint work'},
-        {id:uid(),date:'2026-04-20',fromDate:'20/04/2026',fromTime:'16:00',toDate:'20/04/2026',toTime:'20:00',hours:4, job:'Salt pmp cntn and S/D prp'},
-        {id:uid(),date:'2026-04-21',fromDate:'21/04/2026',fromTime:'16:00',toDate:'22/04/2026',toTime:'00:00',hours:8, job:'Shutdown'},
-        {id:uid(),date:'2026-04-10',fromDate:'10/04/2026',fromTime:'16:00',toDate:'10/04/2026',toTime:'20:00',hours:4, job:'Cold well pump 2 cable joining'},
-        {id:uid(),date:'2026-05-19',fromDate:'19/05/2026',fromTime:'20:00',toDate:'20/05/2026',toTime:'00:00',hours:4, job:'Salt pump connection'},
-        {id:uid(),date:'2026-04-02',fromDate:'02/04/2026',fromTime:'16:00',toDate:'02/04/2026',toTime:'20:00',hours:4, job:'WTP DG operation'}]},
-      {id:'3680',name:'Tony T.T',           badge:'3680',dept:'Electrical',entries:[
-        {id:uid(),date:'2026-04-21',fromDate:'21/04/2026',fromTime:'16:00',toDate:'22/04/2026',toTime:'00:00',hours:8, job:'Shutdown'}]},
+      {id:'3112',name:'Ranjit S',        badge:'3112',dept:'Electrical',entries:[{id:uid(),date:'2026-04-22',hours:8, job:'Hrztnl cbl jnt and slt pmp cnt'}]},
+      {id:'3540',name:'Biju K.H',         badge:'3540',dept:'Electrical',entries:[{id:uid(),date:'2026-04-23',hours:4,job:'U2 TF terminal box inspection'},{id:uid(),date:'2026-04-20',hours:4,job:'Salt pmp cntn and S/D prp'},{id:uid(),date:'2026-04-21',hours:8,job:'Shutdown'}]},
+      {id:'3541',name:'Augustin Paul S.V',badge:'3541',dept:'Electrical',entries:[{id:uid(),date:'2026-04-21',hours:12,job:'Shutdown'}]},
+      {id:'3545',name:'Baiju M.A.',        badge:'3545',dept:'Electrical',entries:[{id:uid(),date:'2026-05-12',hours:4,job:'Breaker panel inspection at SS'}]},
+      {id:'3553',name:'Haris M.A',         badge:'3553',dept:'Electrical',entries:[{id:uid(),date:'2026-04-22',hours:8,job:'Hrztnl cbl jnt and slt pmp cnt'},{id:uid(),date:'2026-04-21',hours:8,job:'Shutdown'},{id:uid(),date:'2026-05-12',hours:1,job:'In place of Michael Baiju'},{id:uid(),date:'2026-04-03',hours:8,job:'Inplace of Ananthu'}]},
+      {id:'3554',name:'Michael Baiju',     badge:'3554',dept:'Electrical',entries:[{id:uid(),date:'2026-04-21',hours:8,job:'Shutdown'}]},
+      {id:'3597',name:'Dinesh S',          badge:'3597',dept:'Electrical',entries:[{id:uid(),date:'2026-04-22',hours:8,job:'Hrztnl cbl jnt and slt pmp cnt'}]},
+      {id:'3598',name:'Sumesh C V',        badge:'3598',dept:'Electrical',entries:[{id:uid(),date:'2026-04-23',hours:4,job:'U2 TF terminal box inspection'},{id:uid(),date:'2026-04-01',hours:8,job:'A3 HT cable joint work'},{id:uid(),date:'2026-04-20',hours:4,job:'Salt pmp cntn and S/D prp'},{id:uid(),date:'2026-04-21',hours:8,job:'Shutdown'},{id:uid(),date:'2026-04-18',hours:4,job:'JOC hotwell motor connection'},{id:uid(),date:'2026-04-02',hours:4,job:'UHDE2 polaraizer testing'},{id:uid(),date:'2026-05-12',hours:4,job:'Breaker panel inspection at SS'}]},
+      {id:'3599',name:'Eldhose Mathew',    badge:'3599',dept:'Electrical',entries:[{id:uid(),date:'2026-04-01',hours:8,job:'WTP DG operation'},{id:uid(),date:'2026-04-05',hours:8,job:'In place of 3600'}]},
+      {id:'3600',name:'Prathibhan V P',    badge:'3600',dept:'Electrical',entries:[{id:uid(),date:'2026-04-21',hours:12,job:'Shutdown'}]},
+      {id:'3667',name:'Anoop Kumar P K',   badge:'3667',dept:'Electrical',entries:[{id:uid(),date:'2026-04-20',hours:4,job:'Salt pmp cntn and S/D prp'},{id:uid(),date:'2026-04-21',hours:8,job:'Shutdown'},{id:uid(),date:'2026-04-10',hours:4,job:'Cold well pump 2 cable joining'},{id:uid(),date:'2026-04-23',hours:4,job:'U2 TF terminal box inspection'},{id:uid(),date:'2026-04-02',hours:4,job:'UHDE2 polaraizer testing'}]},
+      {id:'3669',name:'Arun B S',          badge:'3669',dept:'Electrical',entries:[{id:uid(),date:'2026-04-01',hours:8,job:'A3 HT cable joint work'},{id:uid(),date:'2026-04-20',hours:4,job:'Salt pmp cntn and S/D prp'},{id:uid(),date:'2026-04-21',hours:8,job:'Shutdown'},{id:uid(),date:'2026-04-10',hours:4,job:'Cold well pump 2 cable joining'},{id:uid(),date:'2026-04-02',hours:4,job:'WTP DG operation'}]},
+      {id:'3680',name:'Tony T.T',          badge:'3680',dept:'Electrical',entries:[{id:uid(),date:'2026-04-21',hours:8,job:'Shutdown'}]},
     ],
     lastUpdated: today()
   };
 }
 
 // ── STORAGE ───────────────────────────────────────────────────────────────────────
-// On every page load: clear ALL previously saved ot_monitor data.
-// This guarantees the hardcoded defaultData (from the latest PDF) is always the
-// starting point. User edits (add OT, add employee, PDF upload) are saved back
-// under STORAGE_KEY for the rest of the session, but the next fresh page load
-// will always reset to the embedded data — which is the correct behaviour when
-// a new report file is distributed.
-(function(){
-  try {
-    var toDelete = [];
-    for (var i = 0; i < localStorage.length; i++) {
-      var k = localStorage.key(i);
-      if (k && k.indexOf('ot_monitor') === 0) toDelete.push(k);
-    }
-    toDelete.forEach(function(k){ localStorage.removeItem(k); });
-  } catch(e) {}
-})();
-
 function dbLoad() {
-  // Always start from the embedded defaultData — never trust stale localStorage
-  const fresh = defaultData();
-  dbSave(fresh);
-  return fresh;
+  try { const r = localStorage.getItem(STORAGE_KEY); if (r) return JSON.parse(r); } catch(e) {}
+  // First run — start with empty dashboard, no sample data
+  const fresh = {
+    settings: defaultData().settings,
+    employees: [],
+    lastUpdated: today()
+  };
+  dbSave(fresh); return fresh;
 }
 function dbSave(data) {
   data.lastUpdated = today();
@@ -452,11 +456,6 @@ function dbSave(data) {
 }
 
 let DB = dbLoad();
-// Diagnostic: confirm total in browser console (F12 → Console)
-(function(){
-  var t = DB.employees.reduce(function(s,e){ return s + e.entries.reduce(function(a,x){ return a+x.hours; },0); },0);
-  console.log('[OT Monitor v5] Loaded', DB.employees.length, 'employees, total OT hours:', t);
-})();
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────────
 function empTotal(emp) { return emp.entries.reduce((s,e) => s + e.hours, 0); }
@@ -479,7 +478,7 @@ function renderAll() { renderQuarterBar(); renderMetrics(); renderTable(); }
 function renderQuarterBar() {
   const s = DB.settings;
   const fmt = d => new Date(d + 'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
-  document.getElementById('qb-title').textContent = s.reportPeriod || (s.quarter + ' \u2014 ' + fmt(s.startDate) + ' to ' + fmt(s.endDate));
+  document.getElementById('qb-title').textContent = s.quarter + ' \u2014 ' + fmt(s.startDate) + ' to ' + fmt(s.endDate);
   document.getElementById('qb-info').innerHTML = 'OT limit: <strong>' + s.limit + ' hours</strong> per employee &middot; Data updated: ' + DB.lastUpdated;
   document.title = 'OT Monitor \u2014 ' + s.company;
 }
@@ -519,9 +518,10 @@ function renderTable() {
     const hrs = empTotal(emp);
     const s   = getStatus(hrs, lim);
     const pct = Math.min(100, Math.round(hrs / lim * 100));
-    return '<div class="emp-row" ondblclick="openHistory(\'' + emp.id + '\')" title="Double-click to view OT details" style="cursor:pointer">' +
+    return '<div class="emp-row" ondblclick="openBadgeDetail(\'' + emp.id + '\')" title="Double-click to view OT details">' +
       '<div class="emp-num">' + (i+1) + '</div>' +
-      '<div><div class="emp-name">' + esc(emp.name) + '</div><div class="emp-badge">Badge #' + esc(emp.badge) + ' &middot; ' + esc(emp.dept) + '</div></div>' +
+      '<div><div class="emp-name">' + esc(emp.name) + '</div>' +
+      '<div class="emp-badge" ondblclick="event.stopPropagation();openBadgeDetail(\'' + emp.id + '\')" title="Double-click badge to view details">Badge #' + esc(emp.badge) + ' &middot; ' + esc(emp.dept) + '</div></div>' +
       '<div><span class="pill ' + PC[s] + '">' + PT[s] + '</span></div>' +
       '<div><div class="progress-track"><div class="progress-fill ' + FL[s] + '" style="width:' + pct + '%"></div></div>' +
       '<div class="prog-label">' + hrs + ' / ' + lim + ' hrs (' + pct + '%) &middot; ' + (lim - hrs > 0 ? (lim - hrs) + ' hrs left' : 'LIMIT REACHED') + '</div></div>' +
@@ -555,7 +555,20 @@ function askConfirm(title, body, warnText, okLabel, callback) {
 function openModal(id) {
   if (id === 'add-ot-modal')   populateEmpSelect('ot-emp-sel');
   if (id === 'settings-modal') loadSettingsForm();
+  if (id === 'email-modal')    populateEmailThreshold();
   document.getElementById(id).classList.add('open');
+}
+function populateEmailThreshold() {
+  var lim = DB.settings.limit;
+  var sel = document.getElementById('email-threshold');
+  var prev = sel.value;
+  sel.innerHTML =
+    '<option value="60">60% and above \u2014 recommended (' + Math.round(lim * 0.60) + '+ hrs)</option>' +
+    '<option value="80">80% and above \u2014 high risk only (' + Math.round(lim * 0.80) + '+ hrs)</option>' +
+    '<option value="100">Exceeded limit only (' + lim + '+ hrs)</option>' +
+    '<option value="0">All employees</option>';
+  // restore previously selected option if still valid
+  if (prev) sel.value = prev;
 }
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
@@ -634,97 +647,56 @@ function addOTEntry() {
   const empId = document.getElementById('ot-emp-sel').value;
   const date  = document.getElementById('ot-date').value;
   const hours = parseFloat(document.getElementById('ot-hours').value);
+  const fromT = document.getElementById('ot-from').value || '';
+  const toT   = document.getElementById('ot-to').value   || '';
   const job   = document.getElementById('ot-job').value.trim() || '\u2014';
   if (!empId)        { showToast('Select an employee'); return; }
   if (!date)         { showToast('Enter a date'); return; }
   if (!hours || hours <= 0) { showToast('Enter valid hours'); return; }
   const emp = DB.employees.find(e => e.id === empId);
   if (!emp) return;
-  emp.entries.push({id: uid(), date, hours, job});
+  emp.entries.push({id: uid(), date, hours, job, fromTime: fromT, toTime: toT});
   dbSave(DB); renderAll(); closeModal('add-ot-modal');
   document.getElementById('ot-job').value = '';
+  document.getElementById('ot-from').value = '';
+  document.getElementById('ot-to').value = '';
   showToast(hours + ' hrs added for ' + emp.name);
 }
 
 function openHistory(empId) {
-  var emp = DB.employees.find(function(e) { return e.id === empId; });
+  const emp = DB.employees.find(e => e.id === empId);
   if (!emp) return;
-  var lim  = DB.settings.limit;
-  var hrs  = empTotal(emp);
-  var pct  = Math.min(100, Math.round(hrs / lim * 100));
-  var s    = getStatus(hrs, lim);
-  var TC   = {ok:'c-ok', warn:'c-warn', danger:'c-danger', over:'c-over'};
-  var FL   = {ok:'pf-ok', warn:'pf-warn', danger:'pf-danger', over:'pf-over'};
-  var PT   = {ok:'On track', warn:'Caution', danger:'High risk', over:'Exceeded limit'};
-  var PC   = {ok:'p-ok', warn:'p-warn', danger:'p-danger', over:'p-over'};
-  var clr  = TC[s];
-  var sorted = emp.entries.slice().sort(function(a,b){ return a.date.localeCompare(b.date); });
+  document.getElementById('history-title').textContent = 'OT History \u2014 ' + emp.name + ' (' + empTotal(emp) + ' hrs total)';
+  const sorted = [...emp.entries].sort((a,b) => a.date.localeCompare(b.date));
 
-  document.getElementById('history-title').textContent = emp.name + '  —  OT Details';
-
-  var rows = '';
-  for (var i = 0; i < sorted.length; i++) {
-    var x = sorted[i];
-    rows +=
-      '<tr>' +
-      '<td style="color:var(--muted);font-size:12px">' + (i+1) + '</td>' +
-      '<td style="white-space:nowrap;font-weight:600">' + fmtDate(x.date) + '</td>' +
-      '<td style="white-space:nowrap">' + (x.fromTime || '-') + '</td>' +
-      '<td style="white-space:nowrap">' + (x.toDate !== x.fromDate ? fmtDate(x.toDate ? x.toDate.split('/').reverse().join('-') : x.date) + ' ' : '') + (x.toTime || '-') + '</td>' +
-      '<td>' + esc(x.job) + '</td>' +
-      '<td style="text-align:right;font-weight:700;white-space:nowrap" class="' + clr + '">' + x.hours + ' hrs</td>' +
-      '<td><button class="del-entry" onclick="askDeleteEntry(\'' + empId + '\',\'' + x.id + '\')" title="Delete">&#10005;</button></td>' +
-      '</tr>';
+  function stamp(dateISO, time) {
+    if (!dateISO && !time) return '\u2014';
+    const d = dateISO ? fmtDate(dateISO) : '';
+    const t = time    ? time             : '';
+    return d && t ? d + '&nbsp;&nbsp;' + t : d || t;
+  }
+  function toStamp(entry) {
+    // If toDate differs from fromDate (overnight shift), show the date too
+    if (entry.toDate && entry.toDate !== entry.date) return stamp(entry.toDate, entry.toTime);
+    return entry.toTime || '\u2014';
   }
 
-  var remaining = lim - hrs;
-  var remHTML = remaining > 0
-    ? '<strong>' + remaining + ' hrs</strong> <span style="color:var(--muted)">remaining</span>'
-    : '<strong class="c-over">Limit exceeded</strong>';
-
-  var summaryHTML =
-    '<div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:18px">' +
-      '<div style="display:flex;flex-wrap:wrap;gap:18px;align-items:center;margin-bottom:12px">' +
-        '<div>' +
-          '<div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Employee</div>' +
-          '<div style="font-weight:700;font-size:15px">' + esc(emp.name) + '</div>' +
-          '<div style="font-size:12px;color:var(--muted)">Badge #' + esc(emp.badge) + ' &nbsp;&middot;&nbsp; ' + esc(emp.dept) + '</div>' +
-        '</div>' +
-        '<div style="margin-left:auto;text-align:right">' +
-          '<div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Total OT</div>' +
-          '<div style="font-size:28px;font-weight:800;line-height:1" class="' + clr + '">' + hrs + ' <span style="font-size:14px;font-weight:500">hrs</span></div>' +
-          '<span class="pill ' + PC[s] + '" style="margin-top:4px;display:inline-block">' + PT[s] + '</span>' +
-        '</div>' +
-      '</div>' +
-      '<div style="display:flex;gap:18px;font-size:13px;margin-bottom:8px">' +
-        '<span><strong>' + sorted.length + '</strong> <span style="color:var(--muted)">entries</span></span>' +
-        '<span><strong>' + pct + '%</strong> <span style="color:var(--muted)">of ' + lim + ' hr limit used</span></span>' +
-        '<span>' + remHTML + '</span>' +
-      '</div>' +
-      '<div class="progress-track" style="height:10px"><div class="progress-fill ' + FL[s] + '" style="width:' + pct + '%"></div></div>' +
-    '</div>';
-
-  var tableHTML = sorted.length === 0
-    ? '<p style="color:var(--muted);font-size:13px;padding:12px 0">No OT entries recorded yet.</p>'
-    : '<table class="history-table">' +
-        '<thead><tr>' +
-          '<th style="width:36px">#</th>' +
-          '<th>Date</th>' +
-          '<th>From</th>' +
-          '<th>To</th>' +
-          '<th>Job / Task Description</th>' +
-          '<th style="text-align:right">Hours</th>' +
-          '<th style="width:36px"></th>' +
-        '</tr></thead>' +
-        '<tbody>' + rows +
-        '<tr style="border-top:2px solid var(--border);background:var(--bg)">' +
-          '<td colspan="5" style="font-weight:700;text-align:right;color:var(--muted)">TOTAL</td>' +
-          '<td style="text-align:right;font-weight:800;font-size:15px" class="' + clr + '">' + hrs + ' hrs</td>' +
-          '<td></td>' +
-        '</tr>' +
-        '</tbody></table>';
-
-  document.getElementById('history-body').innerHTML = summaryHTML + tableHTML;
+  document.getElementById('history-body').innerHTML = sorted.length === 0
+    ? '<p style="color:var(--muted);font-size:13px;padding:12px 0">No entries yet.</p>'
+    : '<table class="history-table"><thead><tr>' +
+        '<th>#</th><th>From</th><th>To</th><th>Job / Task</th><th>Hours</th><th></th>' +
+      '</tr></thead><tbody>' +
+      sorted.map((x, i) =>
+        '<tr>' +
+          '<td style="color:var(--muted);font-size:11px">' + (i+1) + '</td>' +
+          '<td style="white-space:nowrap"><strong>' + stamp(x.date, x.fromTime) + '</strong></td>' +
+          '<td style="white-space:nowrap">' + toStamp(x) + '</td>' +
+          '<td>' + esc(x.job) + '</td>' +
+          '<td><strong>' + x.hours + ' hrs</strong></td>' +
+          '<td><button class="del-entry" onclick="askDeleteEntry(\'' + empId + '\',\'' + x.id + '\')" title="Delete">&#10005;</button></td>' +
+        '</tr>'
+      ).join('') +
+      '</tbody></table>';
   openModal('history-modal');
 }
 function askDeleteEntry(empId, entryId) {
@@ -737,7 +709,93 @@ function askDeleteEntry(empId, entryId) {
   });
 }
 
+// ── BADGE DETAIL ──────────────────────────────────────────────────────────────────
+function openBadgeDetail(empId) {
+  const emp = DB.employees.find(e => e.id === empId);
+  if (!emp) return;
+
+  const lim  = DB.settings.limit;
+  const hrs  = empTotal(emp);
+  const s    = getStatus(hrs, lim);
+  const pct  = Math.min(100, Math.round(hrs / lim * 100));
+  const rem  = lim - hrs;
+
+  const statusColors = {ok:'var(--fill-ok)', warn:'var(--fill-warn)', danger:'var(--fill-danger)', over:'var(--fill-over)'};
+  const statusText   = {ok:'On Track', warn:'Caution', danger:'High Risk', over:'Exceeded'};
+  const statusCls    = {ok:'c-ok', warn:'c-warn', danger:'c-danger', over:'c-over'};
+
+  // Initials for avatar
+  const initials = emp.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+
+  // Sort entries by date
+  const sorted = [...emp.entries].sort((a,b) => a.date.localeCompare(b.date));
+
+  function fmtTime(t) {
+    if (!t) return '<span style="color:var(--muted);font-style:italic">—</span>';
+    // Convert 24h to 12h format
+    const [hh, mm] = t.split(':');
+    const h = parseInt(hh), ampm = h >= 12 ? 'PM' : 'AM';
+    return ((h % 12) || 12) + ':' + mm + ' ' + ampm;
+  }
+
+  const entryCards = sorted.length === 0
+    ? '<div class="badge-no-entries">&#128197; No OT entries recorded yet.</div>'
+    : sorted.map(x => {
+        const hasTime = x.fromTime || x.toTime;
+        const timeStr = hasTime
+          ? '&#128336; ' + fmtTime(x.fromTime) + ' &nbsp;&rarr;&nbsp; ' + fmtTime(x.toTime)
+          : '<span style="color:var(--muted);font-style:italic;font-size:11px">No time recorded</span>';
+        return '<div class="badge-entry-card">' +
+          '<div>' +
+            '<div class="badge-entry-date">&#128197; ' + fmtDate(x.date) + '</div>' +
+            '<div class="badge-entry-job">' + esc(x.job) + '</div>' +
+            '<div class="badge-entry-time">' + timeStr + '</div>' +
+          '</div>' +
+          '<div>' +
+            '<div class="badge-entry-hrs ' + statusCls[getStatus(x.hours, lim)] + '">' + x.hours + '</div>' +
+            '<div class="badge-entry-hrs-label">hrs</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+  document.getElementById('badge-detail-body').innerHTML =
+    '<div class="badge-detail-header">' +
+      '<div class="badge-avatar">' + initials + '</div>' +
+      '<div>' +
+        '<div class="badge-detail-name">' + esc(emp.name) + '</div>' +
+        '<div class="badge-detail-meta">Badge #' + esc(emp.badge) + ' &nbsp;&middot;&nbsp; ' + esc(emp.dept) + ' Dept</div>' +
+        '<div style="margin-top:6px"><span class="pill p-' + s + '">' + statusText[s] + '</span></div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="badge-stat-row">' +
+      '<div class="badge-stat"><div class="badge-stat-label">Total OT Hours</div><div class="badge-stat-val ' + statusCls[s] + '">' + hrs + '</div></div>' +
+      '<div class="badge-stat"><div class="badge-stat-label">Limit</div><div class="badge-stat-val">' + lim + '</div></div>' +
+      '<div class="badge-stat"><div class="badge-stat-label">' + (rem >= 0 ? 'Remaining' : 'Over by') + '</div>' +
+        '<div class="badge-stat-val ' + (rem < 0 ? 'c-over' : rem <= lim * 0.2 ? 'c-danger' : '') + '">' + Math.abs(rem) + '</div></div>' +
+    '</div>' +
+
+    '<div class="badge-progress-wrap">' +
+      '<div class="badge-progress-label"><span>' + pct + '% of limit used</span><span>' + hrs + ' / ' + lim + ' hrs</span></div>' +
+      '<div class="badge-progress-bar"><div class="badge-progress-fill" style="width:' + pct + '%;background:' + statusColors[s] + '"></div></div>' +
+    '</div>' +
+
+    '<div class="badge-entries-title">&#128203; OT Entries (' + sorted.length + ')</div>' +
+    '<div style="max-height:300px;overflow-y:auto;">' + entryCards + '</div>';
+
+  // Wire the Add OT Hours button for this specific employee
+  document.getElementById('badge-add-hrs-btn').onclick = function() {
+    closeModal('badge-detail-modal');
+    openAddOTFor(empId);
+  };
+
+  openModal('badge-detail-modal');
+}
+
 // ── EMAIL ─────────────────────────────────────────────────────────────────────────
+// Stores last-generated email data for sendEmail() to use directly
+var _lastEmail = null;
+
 function generateEmail() {
   const lim    = DB.settings.limit;
   const s      = DB.settings;
@@ -746,36 +804,80 @@ function generateEmail() {
   const cc     = document.getElementById('email-cc').value.trim();
   const thr    = parseFloat(document.getElementById('email-threshold').value) / 100;
   const dateStr = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
-  const line    = '\u2500'.repeat(68);
-  const atRisk  = DB.employees
+
+  const atRisk = DB.employees
     .map(e => ({emp: e, hrs: empTotal(e)}))
     .filter(x => x.hrs / lim >= thr)
     .sort((a,b) => b.hrs - a.hrs);
 
   if (!atRisk.length) {
     document.getElementById('email-text').textContent = 'No employees meet the selected threshold.';
-    document.getElementById('email-preview').style.display = 'block'; return;
+    document.getElementById('email-preview').style.display = 'block';
+    _lastEmail = null;
+    return;
   }
+
   const statusLabel = h => ({ok:'On Track', warn:'Caution', danger:'High Risk', over:'EXCEEDED'})[getStatus(h,lim)];
-  const rows = atRisk.map(x => {
-    const rem = lim - x.hrs, pct = Math.round(x.hrs / lim * 100);
-    return '  ' + statusLabel(x.hrs).padEnd(12) + '  ' + x.emp.name.padEnd(24) + '  ' + String(x.hrs).padStart(4) + ' hrs  ' + pct + '%  ' + (rem > 0 ? rem + ' hrs left' : 'NO HOURS LEFT');
-  }).join('\n');
 
-  document.getElementById('email-text').textContent =
-    'To: ' + to + (cc ? '\nCC: ' + cc : '') + '\nDate: ' + dateStr +
-    '\nSubject: OT Limit Alert \u2014 ' + s.quarter + ' | ' + s.dept + ' Dept | ' + s.company +
-    '\n\nDear Manager,\n\nOvertime monitoring alert for the ' + s.dept + ' Department, ' + s.company + ' \u2014 ' + s.quarter + '.\nQuarterly OT limit: ' + lim + ' hours per employee.\n\nThe following employee(s) require attention:\n\n' +
-    line + '\n  STATUS        NAME                      HOURS    %    REMAINING\n' + line + '\n' + rows + '\n' + line +
-    '\n\nStatus key:\n  Caution    \u2014 60\u201380% of limit used\n  High Risk  \u2014 80\u2013100% of limit used\n  EXCEEDED   \u2014 Over ' + lim + ' hrs\n\nRegards,\n' + sender + '\n' + s.dept + ' Department, ' + s.company;
+  // Build plain-text rows WITHOUT any column padding — one employee per line block
+  // Format is label-colon-value style so Gmail's proportional font never breaks alignment
+  const rowLines = atRisk.map((x, i) => {
+    const rem = lim - x.hrs;
+    const pct = Math.round(x.hrs / lim * 100);
+    const remStr = rem > 0 ? rem + ' hrs remaining' : 'NO HOURS LEFT';
+    return (i + 1) + '. ' + x.emp.name + ' (Badge #' + x.emp.badge + ')\n' +
+           '   Status: ' + statusLabel(x.hrs) + '  |  ' + x.hrs + ' hrs used  |  ' + pct + '%  |  ' + remStr;
+  }).join('\n\n');
 
+  const subject = 'OT Limit Alert \u2014 ' + s.quarter + ' | ' + s.dept + ' Dept | ' + s.company;
+
+  const body =
+    'Dear Manager,\n\n' +
+    'This is an overtime monitoring alert for the ' + s.dept + ' Department, ' + s.company + ' \u2014 ' + s.quarter + '.\n' +
+    'Quarterly OT limit: ' + lim + ' hours per employee.\n\n' +
+    'The following employee(s) require attention:\n\n' +
+    '------------------------------------------------------------\n\n' +
+    rowLines + '\n\n' +
+    '------------------------------------------------------------\n\n' +
+    'Status key:\n' +
+    '  Caution   \u2014 60\u201380% of quarterly OT limit used\n' +
+    '  High Risk \u2014 80\u2013100% of quarterly OT limit used\n' +
+    '  EXCEEDED  \u2014 Over ' + lim + ' hrs (limit breached)\n\n' +
+    'Regards,\n' +
+    sender + '\n' +
+    s.dept + ' Department, ' + s.company + '\n' +
+    dateStr;
+
+  // Preview text includes To/CC/Subject header for reference
+  const preview =
+    'To: ' + to + (cc ? '\nCC: ' + cc : '') +
+    '\nDate: ' + dateStr +
+    '\nSubject: ' + subject +
+    '\n\n' + body;
+
+  document.getElementById('email-text').textContent = preview;
   document.getElementById('email-preview').style.display = 'block';
   document.getElementById('copy-ok').style.display = 'none';
+
+  // Store structured data so sendEmail() doesn't have to re-parse text
+  _lastEmail = { to, cc, subject, body };
 }
+
 function copyEmail() {
   navigator.clipboard.writeText(document.getElementById('email-text').textContent)
     .then(() => { document.getElementById('copy-ok').style.display = 'inline'; showToast('Copied to clipboard'); })
     .catch(() => showToast('Please select the text and copy manually'));
+}
+
+function sendEmail() {
+  if (!_lastEmail) { showToast('Preview the email first'); return; }
+  const { to, cc, subject, body } = _lastEmail;
+  let mailto = 'mailto:' + encodeURIComponent(to) +
+               '?subject=' + encodeURIComponent(subject) +
+               '&body='    + encodeURIComponent(body);
+  if (cc) mailto += '&cc=' + encodeURIComponent(cc);
+  window.location.href = mailto;
+  showToast('Opening your email app\u2026');
 }
 
 // ── SETTINGS ──────────────────────────────────────────────────────────────────────
@@ -945,9 +1047,9 @@ async function handlePDFUpload(evt) {
 function parsePDFText(text) {
   const lines = text.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 0; });
 
-  // Detect period — supports both / and - separators (e.g. 01/04/2026 or 01-04-2026)
+  // Detect period from header: "OT Booked from 01/04/2026 to 20/05/2026"
   var period = {startDate: null, endDate: null, label: null};
-  var pm = text.match(/OT\s+Booked\s+from\s+(\d{2})[\/\-](\d{2})[\/\-](\d{4})\s+to\s+(\d{2})[\/\-](\d{2})[\/\-](\d{4})/i);
+  var pm = text.match(/OT\s+Booked\s+from\s+(\d{2})\/(\d{2})\/(\d{4})\s+to\s+(\d{2})\/(\d{2})\/(\d{4})/i);
   if (pm) {
     period.startDate = pm[3] + '-' + pm[2] + '-' + pm[1];
     period.endDate   = pm[6] + '-' + pm[5] + '-' + pm[4];
@@ -955,80 +1057,91 @@ function parsePDFText(text) {
   }
 
   function isSkip(l) {
-    return /^OT\s+Booked/i.test(l) || /^T\.C\.C/i.test(l) || /Page\s+\d+\s+of\s+\d+/i.test(l) ||
-           /^Badge\s*No/i.test(l) || /^\d{2}[\/\-]\d{2}[\/\-]\d{4}\s+Page/i.test(l);
+    return /^OT\s+Booked/i.test(l) || /^T\.C\.C/i.test(l) || /Page\s+\d+/i.test(l) ||
+           /^Badge\s*No/i.test(l) || /^\d{2}\/\d{2}\/\d{4}\s+Page/i.test(l);
   }
-  // Grand total line at very end (e.g. "213.00") — larger numbers
-  // Employee subtotal line (e.g. "16.00", "25.00") — ends that employee block
   function isTotal(l) { return /^\d{1,6}\.\d{2}$/.test(l); }
 
   // Line starting with badge + name + department
-  var empRx = /^(\d{3,5})\s+([A-Z][A-Z0-9 .'\/\-]+?)\s+(Electrical|Mechanical|Civil|Instrumentation|Electronics?|Chemical|Safety|Admin|HR)\s*(.*)/i;
-  // Entry: optional job text, then date dd/mm/yyyy hh:mm date hh:mm hours
+  var empRx   = /^([A-Z0-9]{3,6})\s+([A-Z][A-Z0-9 .'\/\-]+?)\s+(Electrical|Mechanical|Civil|Instrumentation|Electronics?|Chemical|Safety|Admin|HR)\s+(.*)/i;
+  // Entry pattern: optional job text, then fromDate fromTime toDate toTime hours
+  // Groups: 1=job  2=fromDate  3=fromTime  4=toDate  5=toTime  6=hours
   var entryRx = /^(.*?)(\d{2}\/\d{2}\/\d{4})\s+(\d{2}:\d{2})\s+(\d{2}\/\d{2}\/\d{4})\s+(\d{2}:\d{2})\s+(\d+(?:\.\d+)?)/;
 
   var employees = [];
-  var badgeMap  = {};   // badge -> employee object, for cross-page merging
   var cur       = null;
-  var pendingBadge = null;
+  var pendingBadge = null; // holds a badge-only line until the next line confirms name+dept
 
   function addEntry(lineText, target) {
     var m = lineText.match(entryRx);
     if (!m) return;
-    var dp = m[2].split('/'); var dp2 = m[4].split('/');
-    target.entries.push({id: uid(), date: dp[2]+'-'+dp[1]+'-'+dp[0], fromDate: m[2], fromTime: m[3], toDate: m[4], toTime: m[5], hours: parseFloat(m[6]), job: m[1].trim() || '\u2014'});
-  }
-
-  function openEmployee(badge, name, dept, restOfLine) {
-    if (badgeMap[badge]) {
-      // Cross-page continuation — reuse existing employee, DON'T create duplicate
-      cur = badgeMap[badge];
-    } else {
-      cur = {badge: badge, name: titleCase(name.trim()), dept: dept.trim(), entries: []};
-      employees.push(cur);
-      badgeMap[badge] = cur;
-    }
-    if (restOfLine) addEntry(restOfLine, cur);
+    var fromDp = m[2].split('/');   // DD MM YYYY
+    var toDp   = m[4].split('/');
+    target.entries.push({
+      id:       uid(),
+      date:     fromDp[2] + '-' + fromDp[1] + '-' + fromDp[0],  // YYYY-MM-DD (from date)
+      toDate:   toDp[2]   + '-' + toDp[1]   + '-' + toDp[0],    // YYYY-MM-DD (to date, may differ for overnight)
+      hours:    parseFloat(m[6]),
+      job:      m[1].trim() || '\u2014',
+      fromTime: m[3],   // e.g. "16:00"
+      toTime:   m[5]    // e.g. "00:00"
+    });
   }
 
   for (var i = 0; i < lines.length; i++) {
     var line = lines[i];
     if (isSkip(line)) continue;
 
-    // Subtotal / grand total line — ends current employee block
+    // Subtotal line (e.g. "16.00") → end this employee's block
     if (isTotal(line)) { cur = null; pendingBadge = null; continue; }
 
     var em = line.match(empRx);
     if (em) {
       pendingBadge = null;
-      openEmployee(em[1], em[2], em[3], em[4]);
+      // If this badge already exists (multi-page continuation), reuse it — don't create a duplicate
+      var existing = employees.find(function(e) { return e.badge === em[1]; });
+      if (existing) {
+        cur = existing;
+      } else {
+        cur = {badge: em[1], name: titleCase(em[2].trim()), dept: em[3].trim(), entries: []};
+        employees.push(cur);
+      }
+      if (em[4]) addEntry(em[4], cur);
       continue;
     }
 
-    // Bare badge number on its own line
-    if (/^\d{3,5}$/.test(line)) {
+    // Badge number on its own line — digits only OR alphanumeric like "684A"
+    if (/^[A-Z0-9]{3,6}$/i.test(line) && !/^[A-Z]+$/i.test(line)) {
       pendingBadge = line;
       continue;
     }
 
-    // Previous line was a bare badge — try to combine
+    // If previous line was a bare badge, try combining with this line
     if (pendingBadge) {
       var combined = pendingBadge + ' ' + line;
       var ec = combined.match(empRx);
       if (ec) {
-        openEmployee(ec[1], ec[2], ec[3], ec[4]);
+        var existingC = employees.find(function(e) { return e.badge === ec[1]; });
+        if (existingC) {
+          cur = existingC;
+        } else {
+          cur = {badge: ec[1], name: titleCase(ec[2].trim()), dept: ec[3].trim(), entries: []};
+          employees.push(cur);
+        }
+        if (ec[4]) addEntry(ec[4], cur);
         pendingBadge = null;
         continue;
       }
       pendingBadge = null;
     }
 
-    // Continuation entry line for current employee
+    // Continuation line: OT entry for the current employee
     if (cur) addEntry(line, cur);
   }
 
   return {period: period, employees: employees};
 }
+
 // Store pending PDF data (avoids passing large objects in onclick attributes)
 var _pendingPDF = null;
 
@@ -1053,7 +1166,10 @@ function showPDFPreview(parsed, period, filename) {
     var existing = DB.employees.find(function(e) { return e.badge === p.badge; });
     var tag  = existing ? '<span class="tag-found">&#10003; Known</span>' : '<span class="tag-new">&#10133; New</span>';
     var hrs  = p.entries.reduce(function(s,x) { return s + x.hours; }, 0);
-    var ents = p.entries.map(function(x) { return fmtDate(x.date) + ' &mdash; ' + esc(x.job) + ' &mdash; <strong>' + x.hours + 'h</strong>'; }).join('<br>');
+    var ents = p.entries.map(function(x) {
+      var timeStr = (x.fromTime && x.toTime) ? ' &nbsp;&#128336; ' + x.fromTime + '\u2013' + x.toTime : '';
+      return fmtDate(x.date) + timeStr + ' &mdash; ' + esc(x.job) + ' &mdash; <strong>' + x.hours + 'h</strong>';
+    }).join('<br>');
     return '<tr class="' + (existing ? '' : 'row-new') + '">' +
       '<td><strong>' + esc(p.name) + '</strong><br><span style="font-size:11px;color:var(--muted)">Badge #' + esc(p.badge) + '</span></td>' +
       '<td>' + tag + '</td>' +
@@ -1092,24 +1208,26 @@ function confirmPDFImport() {
   DB.employees.forEach(function(e) { e.entries = []; });
 
   // 2. Update existing employees and add new ones
+  //    parsed may contain the same badge multiple times (multi-page employees) —
+  //    use concat so all entry blocks are merged, not the last one overwriting the rest
   parsed.forEach(function(p) {
     var emp = DB.employees.find(function(e) { return e.badge === p.badge; });
     if (!emp) {
       emp = {id: p.badge, name: p.name, badge: p.badge, dept: p.dept, entries: []};
       DB.employees.push(emp);
     }
-    emp.entries = p.entries;
+    emp.entries = emp.entries.concat(p.entries);
   });
 
   // 3. Update report start date if detected
   if (period && period.startDate) DB.settings.startDate = period.startDate;
-  if (period && period.label) DB.settings.reportPeriod = 'OT Booked from ' + period.label.replace(' – ', ' to ');
 
   dbSave(DB); renderAll(); closeModal('pdf-modal');
   _pendingPDF = null;
 
-  var totalHrs = parsed.reduce(function(s,p) { return s + p.entries.reduce(function(a,x) { return a + x.hours; }, 0); }, 0);
-  showToast('Dashboard updated \u2014 ' + parsed.length + ' employees, ' + totalHrs + ' hrs total');
+  var totalHrs  = DB.employees.reduce(function(s,e) { return s + empTotal(e); }, 0);
+  var empCount  = DB.employees.filter(function(e) { return e.entries.length > 0; }).length;
+  showToast('Dashboard updated \u2014 ' + empCount + ' employees, ' + totalHrs + ' hrs total');
 }
 
 // ── TOAST ─────────────────────────────────────────────────────────────────────────
@@ -1123,17 +1241,6 @@ function showToast(msg) {
 
 // ── INIT ──────────────────────────────────────────────────────────────────────────
 document.getElementById('ot-date').value = new Date().toISOString().slice(0,10);
-
-// CRITICAL: Always overwrite DB with embedded defaultData on every page load.
-// This completely bypasses localStorage so cached/stale data can never interfere.
-(function(){
-  var d = defaultData();
-  DB.settings  = d.settings;
-  DB.employees = d.employees;
-  DB.lastUpdated = today();
-  dbSave(DB);
-})();
-
 renderAll();
 </script>
 </body>
