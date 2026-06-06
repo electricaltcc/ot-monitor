@@ -170,6 +170,42 @@
   #toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#1a1916; color:#fff; border-radius:var(--radius); padding:10px 20px; font-size:13px; box-shadow:0 4px 16px rgba(0,0,0,.25); opacity:0; transition:opacity .3s; pointer-events:none; z-index:9999; white-space:nowrap; }
   #toast.show { opacity:1; }
 
+  /* ── DEPT MULTI-SELECT DROPDOWN ── */
+  .dept-wrap       { position:relative; }
+  .dept-btn        { display:flex; align-items:center; gap:6px; min-width:170px; justify-content:space-between; }
+  .dept-btn-lbl    { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:180px; font-size:13px; }
+  .dept-arr        { font-size:9px; opacity:.55; flex-shrink:0; }
+  .dept-panel      { display:none; position:absolute; top:calc(100% + 4px); left:0; z-index:300;
+                     background:var(--surface); border:1px solid var(--border2);
+                     border-radius:var(--radius-lg); padding:6px;
+                     min-width:240px; max-height:340px; overflow-y:auto;
+                     box-shadow:0 6px 24px rgba(0,0,0,.18); }
+  .dept-panel.open { display:block; }
+  .dp-head         { display:flex; gap:6px; padding:4px 6px 8px; border-bottom:1px solid var(--border); margin-bottom:4px; }
+  .dp-head button  { flex:1; font-size:11px; padding:4px 8px; border-radius:5px;
+                     border:1px solid var(--border2); background:var(--surface); cursor:pointer; color:var(--text); }
+  .dp-head button:hover { background:var(--bg); }
+  .dept-item       { display:flex; align-items:center; gap:8px; padding:5px 8px; border-radius:6px; cursor:pointer; font-size:13px; }
+  .dept-item:hover { background:var(--bg); }
+  .dept-item input { width:14px; height:14px; cursor:pointer; accent-color:var(--accent); flex-shrink:0; }
+  .dept-item-nm    { flex:1; }
+  .dept-item-cnt   { font-size:11px; color:var(--muted); }
+  .sel-badge       { background:var(--accent); color:#fff; border-radius:99px; font-size:10px; font-weight:700; padding:1px 5px; margin-left:3px; }
+  .sort-sel        { border:1px solid var(--border2); border-radius:var(--radius); padding:7px 10px;
+                     font-size:13px; background:var(--surface); color:var(--text); cursor:pointer; }
+  /* ── DEPARTMENT GROUP HEADERS ── */
+  .dept-group-hdr  { display:flex; align-items:center; flex-wrap:wrap; gap:6px 16px;
+                     padding:8px 16px; background:#eeecea;
+                     border-bottom:2px solid var(--border2); font-size:12px; font-weight:700;
+                     color:var(--text); letter-spacing:.01em; position:sticky; top:0; z-index:5; }
+  .dgh-name        { font-size:13px; font-weight:700; color:var(--accent); min-width:120px; }
+  .dgh-stat        { display:flex; align-items:center; gap:4px; color:var(--muted); font-weight:500; }
+  .dgh-stat b      { color:var(--text); }
+  .dgh-warn        { color:var(--warn) !important; }
+  .dgh-danger      { color:var(--danger) !important; }
+  .dgh-over        { color:var(--over) !important; }
+  .metric-sub      { font-size:11px; color:var(--muted); margin-top:2px; }
+
   @media (max-width:700px) {
     .tbl-head, .emp-row { grid-template-columns:1fr 100px 160px 70px; }
     .tbl-head>*:first-child,.emp-row>*:first-child { display:none; }
@@ -224,9 +260,34 @@
       <button class="btn btn-yellow"  onclick="triggerPDFUpload()">&#128196; Upload OT Report (PDF)</button>
       <button class="btn btn-alert"   onclick="openModal('email-modal')">&#9993; Generate Alert Email</button>
     </div>
-    <div class="search-wrap">
-      <span class="search-icon">&#128269;</span>
-      <input type="text" id="search-box" placeholder="Search employee…" oninput="renderTable()" />
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <!-- Department multi-select -->
+      <div class="dept-wrap" id="dept-wrap">
+        <button class="btn dept-btn" id="dept-btn" onclick="toggleDeptPanel(event)">
+          <span class="dept-btn-lbl" id="dept-btn-lbl">All Departments</span>
+          <span class="dept-arr">&#9660;</span>
+        </button>
+        <div class="dept-panel" id="dept-panel">
+          <div class="dp-head">
+            <button onclick="deptSelectAll()">&#10003; Select All</button>
+            <button onclick="deptClearAll()">&#10006; Clear All</button>
+          </div>
+          <div id="dept-checkboxes"></div>
+        </div>
+      </div>
+      <!-- Sort -->
+      <select class="sort-sel" id="sort-select" onchange="renderTable()">
+        <option value="hrs-desc">&#8595; Hours: High → Low</option>
+        <option value="hrs-asc">&#8593; Hours: Low → High</option>
+        <option value="name-asc">A → Z Name</option>
+        <option value="name-desc">Z → A Name</option>
+        <option value="status">Status: Worst First</option>
+      </select>
+      <!-- Search -->
+      <div class="search-wrap">
+        <span class="search-icon">&#128269;</span>
+        <input type="text" id="search-box" placeholder="Search employee…" oninput="renderTable()" />
+      </div>
     </div>
   </div>
   <div class="table-wrap">
@@ -456,6 +517,8 @@ function dbSave(data) {
 }
 
 let DB = dbLoad();
+// Normalize department names already in storage (fixes legacy ALL-CAPS dept names like "MAINTENANCE")
+DB.employees.forEach(e => { if (e.dept) e.dept = titleCase(e.dept); });
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────────
 function empTotal(emp) { return emp.entries.reduce((s,e) => s + e.hours, 0); }
@@ -483,56 +546,175 @@ function renderQuarterBar() {
   document.title = 'OT Monitor \u2014 ' + s.company;
 }
 
-function renderMetrics() {
-  const lim = DB.settings.limit;
-  const total   = DB.employees.reduce((s,e) => s + empTotal(e), 0);
-  const nWarn   = DB.employees.filter(e => getStatus(empTotal(e),lim) === 'warn').length;
-  const nDanger = DB.employees.filter(e => getStatus(empTotal(e),lim) === 'danger').length;
-  const nOver   = DB.employees.filter(e => getStatus(empTotal(e),lim) === 'over').length;
-  document.getElementById('metrics').innerHTML =
-    '<div class="metric"><div class="metric-label">Employees</div><div class="metric-val">' + DB.employees.length + '</div></div>' +
-    '<div class="metric"><div class="metric-label">Total OT Hours</div><div class="metric-val">' + total + '</div></div>' +
-    '<div class="metric"><div class="metric-label">Caution (≥60%)</div><div class="metric-val ' + (nWarn > 0 ? 'c-warn' : '') + '">' + nWarn + '</div></div>' +
-    '<div class="metric"><div class="metric-label">High Risk (≥80%)</div><div class="metric-val ' + (nDanger > 0 ? 'c-danger' : '') + '">' + nDanger + '</div></div>' +
-    '<div class="metric"><div class="metric-label">Exceeded Limit</div><div class="metric-val ' + (nOver > 0 ? 'c-danger' : '') + '">' + nOver + '</div></div>';
+function renderAll() { renderQuarterBar(); renderMetrics(); refreshDeptFilter(); renderTable(); }
+
+// ── DEPT MULTI-SELECT ─────────────────────────────────────────────────────────────
+// _deptSel tracks CHECKED (visible) departments explicitly.
+// Populated by refreshDeptFilter(). Clear = nothing visible.
+let _deptSel = new Set();
+let _allDeptsList = [];   // master list of all known departments
+
+function toggleDeptPanel(e) {
+  e.stopPropagation();
+  document.getElementById('dept-panel').classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#dept-wrap')) {
+    const p = document.getElementById('dept-panel');
+    if (p) p.classList.remove('open');
+  }
+});
+
+function deptSelectAll() {
+  _allDeptsList.forEach(d => _deptSel.add(d));
+  document.querySelectorAll('.dept-cb').forEach(c => c.checked = true);
+  updateDeptBtn(); renderMetrics(); renderTable();
+}
+function deptClearAll() {
+  _deptSel.clear();
+  document.querySelectorAll('.dept-cb').forEach(c => c.checked = false);
+  updateDeptBtn(); renderMetrics(); renderTable();
+}
+function onDeptCheck(dept, checked) {
+  if (checked) _deptSel.add(dept); else _deptSel.delete(dept);
+  updateDeptBtn(); renderMetrics(); renderTable();
+}
+function updateDeptBtn() {
+  const lbl = document.getElementById('dept-btn-lbl');
+  if (!lbl) return;
+  const n = _deptSel.size, total = _allDeptsList.length;
+  if (n === 0)      lbl.innerHTML = 'No Department Selected';
+  else if (n === total) lbl.innerHTML = 'All Departments';
+  else if (n === 1) lbl.innerHTML = esc([..._deptSel][0]) + ' <span class="sel-badge">1</span>';
+  else              lbl.innerHTML = n + ' Departments <span class="sel-badge">' + n + '</span>';
+}
+function refreshDeptFilter() {
+  // Build master dept list (title-cased, deduped, sorted)
+  const raw = [...new Set(DB.employees.map(e => e.dept).filter(Boolean))].sort();
+  _allDeptsList = raw;
+  // Remove stale selections
+  [..._deptSel].forEach(d => { if (!raw.includes(d)) _deptSel.delete(d); });
+  // On first load or after full clear, select all
+  if (_deptSel.size === 0 && DB.employees.length > 0) raw.forEach(d => _deptSel.add(d));
+
+  document.getElementById('dept-checkboxes').innerHTML = raw.map(d => {
+    const cnt = DB.employees.filter(e => e.dept === d).length;
+    const chk = _deptSel.has(d) ? 'checked' : '';
+    const safe = d.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    return '<label class="dept-item">' +
+      '<input type="checkbox" class="dept-cb" value="' + esc(d) + '" ' + chk +
+      ' onchange="onDeptCheck(\'' + safe + '\',this.checked)">' +
+      '<span class="dept-item-nm">' + esc(d) + '</span>' +
+      '<span class="dept-item-cnt">' + cnt + '</span></label>';
+  }).join('');
+  updateDeptBtn();
+}
+function getFilteredEmps() {
+  if (_deptSel.size === 0) return [];
+  if (_deptSel.size === _allDeptsList.length) return DB.employees;
+  return DB.employees.filter(e => _deptSel.has(e.dept));
 }
 
-function renderTable() {
-  const q   = (document.getElementById('search-box').value || '').toLowerCase();
-  const lim = DB.settings.limit;
-  const FL  = {ok:'pf-ok', warn:'pf-warn', danger:'pf-danger', over:'pf-over'};
-  const TC  = {ok:'c-ok',  warn:'c-warn',  danger:'c-danger',  over:'c-over'};
-  const PC  = {ok:'p-ok',  warn:'p-warn',  danger:'p-danger',  over:'p-over'};
-  const PT  = {ok:'On track', warn:'Caution', danger:'High risk', over:'Exceeded'};
+// ── METRICS ───────────────────────────────────────────────────────────────────────
+function renderMetrics() {
+  const lim  = DB.settings.limit;
+  const emps = getFilteredEmps();
+  const filt = _deptSel.size > 0 && _deptSel.size < _allDeptsList.length;
+  const total   = parseFloat(emps.reduce((s,e) => s + empTotal(e), 0).toFixed(2));
+  const nWarn   = emps.filter(e => getStatus(empTotal(e),lim) === 'warn').length;
+  const nDanger = emps.filter(e => getStatus(empTotal(e),lim) === 'danger').length;
+  const nOver   = emps.filter(e => getStatus(empTotal(e),lim) === 'over').length;
+  const sub     = filt ? '<div class="metric-sub">of ' + DB.employees.length + ' total</div>' : '';
+  document.getElementById('metrics').innerHTML =
+    '<div class="metric"><div class="metric-label">Employees</div><div class="metric-val">' + emps.length + '</div>' + sub + '</div>' +
+    '<div class="metric"><div class="metric-label">Total OT Hours</div><div class="metric-val">' + total + '</div>' + sub + '</div>' +
+    '<div class="metric"><div class="metric-label">Caution (≥60%)</div><div class="metric-val ' + (nWarn?'c-warn':'') + '">' + nWarn + '</div></div>' +
+    '<div class="metric"><div class="metric-label">High Risk (≥80%)</div><div class="metric-val ' + (nDanger?'c-danger':'') + '">' + nDanger + '</div></div>' +
+    '<div class="metric"><div class="metric-label">Exceeded Limit</div><div class="metric-val ' + (nOver?'c-danger':'') + '">' + nOver + '</div></div>';
+}
 
-  const rows = [...DB.employees]
-    .sort((a,b) => empTotal(b) - empTotal(a))
-    .filter(e => !q || e.name.toLowerCase().includes(q) || e.badge.includes(q));
+// ── TABLE ─────────────────────────────────────────────────────────────────────────
+function renderTable() {
+  const q     = (document.getElementById('search-box').value || '').toLowerCase();
+  const sortV = document.getElementById('sort-select').value;
+  const lim   = DB.settings.limit;
+  const FL = {ok:'pf-ok', warn:'pf-warn', danger:'pf-danger', over:'pf-over'};
+  const TC = {ok:'c-ok',  warn:'c-warn',  danger:'c-danger',  over:'c-over'};
+  const PC = {ok:'p-ok',  warn:'p-warn',  danger:'p-danger',  over:'p-over'};
+  const PT = {ok:'On track', warn:'Caution', danger:'High risk', over:'Exceeded'};
+  const SO = {over:0, danger:1, warn:2, ok:3};
+
+  const emps = getFilteredEmps();
+  if (emps.length === 0 && DB.employees.length > 0) {
+    document.getElementById('emp-list').innerHTML =
+      '<div class="empty-state" style="padding:32px;color:var(--muted)">No departments selected. Use the filter above to select departments.</div>';
+    return;
+  }
+
+  let rows = emps.filter(e => !q ||
+    e.name.toLowerCase().includes(q) || e.badge.toLowerCase().includes(q) ||
+    (e.dept||'').toLowerCase().includes(q));
+
+  const sortFn = (a, b) => {
+    if (sortV === 'hrs-asc')   return empTotal(a) - empTotal(b);
+    if (sortV === 'name-asc')  return a.name.localeCompare(b.name);
+    if (sortV === 'name-desc') return b.name.localeCompare(a.name);
+    if (sortV === 'status')    return SO[getStatus(empTotal(a),lim)] - SO[getStatus(empTotal(b),lim)];
+    return empTotal(b) - empTotal(a);
+  };
 
   if (!rows.length) {
     document.getElementById('emp-list').innerHTML = '<div class="empty-state">No employees found.</div>';
     return;
   }
 
-  document.getElementById('emp-list').innerHTML = rows.map((emp, i) => {
-    const hrs = empTotal(emp);
-    const s   = getStatus(hrs, lim);
-    const pct = Math.min(100, Math.round(hrs / lim * 100));
-    return '<div class="emp-row" ondblclick="openBadgeDetail(\'' + emp.id + '\')" title="Double-click to view OT details">' +
-      '<div class="emp-num">' + (i+1) + '</div>' +
-      '<div><div class="emp-name">' + esc(emp.name) + '</div>' +
-      '<div class="emp-badge" ondblclick="event.stopPropagation();openBadgeDetail(\'' + emp.id + '\')" title="Double-click badge to view details">Badge #' + esc(emp.badge) + ' &middot; ' + esc(emp.dept) + '</div></div>' +
-      '<div><span class="pill ' + PC[s] + '">' + PT[s] + '</span></div>' +
-      '<div><div class="progress-track"><div class="progress-fill ' + FL[s] + '" style="width:' + pct + '%"></div></div>' +
-      '<div class="prog-label">' + hrs + ' / ' + lim + ' hrs (' + pct + '%) &middot; ' + (lim - hrs > 0 ? (lim - hrs) + ' hrs left' : 'LIMIT REACHED') + '</div></div>' +
-      '<div class="hrs-val ' + TC[s] + '">' + hrs + '</div>' +
-      '<div class="row-actions">' +
-        '<button class="icon-btn" onclick="openAddOTFor(\'' + emp.id + '\')" title="Add hours">+Hrs</button>' +
-        '<button class="icon-btn" onclick="openHistory(\'' + emp.id + '\')"  title="View log">Log</button>' +
-        '<button class="icon-btn" onclick="openEditEmp(\'' + emp.id + '\')"  title="Edit">&#9998;</button>' +
-        '<button class="icon-btn del" onclick="askDeleteEmp(\'' + emp.id + '\')" title="Delete">&#10005;</button>' +
-      '</div></div>';
-  }).join('');
+  // Group by department
+  const groups = {};
+  rows.forEach(e => { const d = e.dept || 'Unknown'; (groups[d] = groups[d]||[]).push(e); });
+
+  let html = '';
+  let rowNum = 0;
+  Object.keys(groups).sort().forEach(dept => {
+    const grp = [...groups[dept]].sort(sortFn);
+    const gHrs    = parseFloat(grp.reduce((s,e) => s + empTotal(e), 0).toFixed(2));
+    const gWarn   = grp.filter(e => getStatus(empTotal(e),lim) === 'warn').length;
+    const gDanger = grp.filter(e => getStatus(empTotal(e),lim) === 'danger').length;
+    const gOver   = grp.filter(e => getStatus(empTotal(e),lim) === 'over').length;
+
+    // Department header row
+    html += '<div class="dept-group-hdr">' +
+      '<span class="dgh-name">' + esc(dept) + '</span>' +
+      '<span class="dgh-stat">&#128100; <b>' + grp.length + '</b> Employees</span>' +
+      '<span class="dgh-stat">&#128336; <b>' + gHrs + '</b> hrs</span>' +
+      (gWarn   ? '<span class="dgh-stat dgh-warn">&#9679; <b>' + gWarn   + '</b> Caution</span>' : '') +
+      (gDanger ? '<span class="dgh-stat dgh-danger">&#9679; <b>' + gDanger + '</b> High Risk</span>' : '') +
+      (gOver   ? '<span class="dgh-stat dgh-over">&#9679; <b>' + gOver   + '</b> Exceeded</span>' : '') +
+    '</div>';
+
+    // Employee rows
+    grp.forEach(emp => {
+      rowNum++;
+      const hrs  = empTotal(emp);
+      const s    = getStatus(hrs, lim);
+      const pct  = Math.min(100, Math.round(hrs / lim * 100));
+      const left = parseFloat((lim - hrs).toFixed(2));
+      html += '<div class="emp-row" ondblclick="openBadgeDetail(\'' + emp.id + '\')" title="Double-click to view OT details">' +
+        '<div class="emp-num">' + rowNum + '</div>' +
+        '<div><div class="emp-name">' + esc(emp.name) + '</div>' +
+        '<div class="emp-badge">Badge #' + esc(emp.badge) + ' &middot; ' + esc(emp.dept) + '</div></div>' +
+        '<div><span class="pill ' + PC[s] + '">' + PT[s] + '</span></div>' +
+        '<div><div class="progress-track"><div class="progress-fill ' + FL[s] + '" style="width:' + pct + '%"></div></div>' +
+        '<div class="prog-label">' + hrs + ' / ' + lim + ' hrs (' + pct + '%) &middot; ' + (left > 0 ? left + ' hrs left' : 'LIMIT REACHED') + '</div></div>' +
+        '<div class="hrs-val ' + TC[s] + '">' + hrs + '</div>' +
+        '<div class="row-actions">' +
+          '<button class="icon-btn" onclick="openAddOTFor(\'' + emp.id + '\')" title="Add hours">+Hrs</button>' +
+          '<button class="icon-btn" onclick="openHistory(\'' + emp.id + '\')"  title="View log">Log</button>' +
+          '<button class="icon-btn" onclick="openEditEmp(\'' + emp.id + '\')"  title="Edit">&#9998;</button>' +
+          '<button class="icon-btn del" onclick="askDeleteEmp(\'' + emp.id + '\')" title="Delete">&#10005;</button>' +
+        '</div></div>';
+    });
+  });
+  document.getElementById('emp-list').innerHTML = html;
 }
 
 // ── CUSTOM CONFIRM ────────────────────────────────────────────────────────────────
@@ -1063,7 +1245,15 @@ function parsePDFText(text) {
   function isTotal(l) { return /^\d{1,6}\.\d{2}$/.test(l); }
 
   // Line starting with badge + name + department
-  var empRx   = /^([A-Z0-9]{3,6})\s+([A-Z][A-Z0-9 .'\/\-]+?)\s+(Electrical|Mechanical|Civil|Instrumentation|Electronics?|Chemical|Safety|Admin|HR)\s+(.*)/i;
+  // Badge MUST start with a digit — prevents job-description words (e.g. "AGC", "CELL")
+  // from being misread as badge numbers. All real TCC badges start with a digit.
+  var deptPat = 'Operations|Electrical|Maintenance|Materials|Marketing|Safety|' +
+                'Instrumentation|Personnel|LAB|Mechanical|Civil|Chemical|Admin|HR|' +
+                'Electronics?|Office\\s+and\\s+Internal\\s+Audit';
+  var empRx = new RegExp(
+    '^(\\d[A-Z0-9]{2,5})\\s+([A-Z][A-Z0-9 .\'\/\\-]+?)\\s+(' + deptPat + ')\\s+(.*)',
+    'i'
+  );
   // Entry pattern: optional job text, then fromDate fromTime toDate toTime hours
   // Groups: 1=job  2=fromDate  3=fromTime  4=toDate  5=toTime  6=hours
   var entryRx = /^(.*?)(\d{2}\/\d{2}\/\d{4})\s+(\d{2}:\d{2})\s+(\d{2}\/\d{2}\/\d{4})\s+(\d{2}:\d{2})\s+(\d+(?:\.\d+)?)/;
@@ -1103,7 +1293,7 @@ function parsePDFText(text) {
       if (existing) {
         cur = existing;
       } else {
-        cur = {badge: em[1], name: titleCase(em[2].trim()), dept: em[3].trim(), entries: []};
+        cur = {badge: em[1], name: titleCase(em[2].trim()), dept: titleCase(em[3].trim()), entries: []};
         employees.push(cur);
       }
       if (em[4]) addEntry(em[4], cur);
@@ -1125,7 +1315,7 @@ function parsePDFText(text) {
         if (existingC) {
           cur = existingC;
         } else {
-          cur = {badge: ec[1], name: titleCase(ec[2].trim()), dept: ec[3].trim(), entries: []};
+          cur = {badge: ec[1], name: titleCase(ec[2].trim()), dept: titleCase(ec[3].trim()), entries: []};
           employees.push(cur);
         }
         if (ec[4]) addEntry(ec[4], cur);
